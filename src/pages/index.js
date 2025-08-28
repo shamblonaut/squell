@@ -1,4 +1,6 @@
 import HomePage from "./HomePage";
 import DashboardPage from "./DashboardPage";
 
-export { HomePage, DashboardPage };
+import ErrorPage from "./ErrorPage";
+
+export { HomePage, DashboardPage, ErrorPage };

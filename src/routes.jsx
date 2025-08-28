@@ -1,13 +1,15 @@
-import { DashboardPage, HomePage } from "@/pages";
+import { DashboardPage, HomePage, ErrorPage } from "@/pages";
 
 const routes = [
   {
     path: "/",
     element: <HomePage />,
+    errorElement: <ErrorPage />,
   },
   {
     path: "/dashboard",
     element: <DashboardPage />,
+    errorElement: <ErrorPage />,
   },
 ];
 
