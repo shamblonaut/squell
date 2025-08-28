@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useSQL } from "@/hooks";
 
-import { Header } from "@/components";
+import { Editor, Header } from "@/components";
 
 const SQL_CODE = `
 CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);
@@ -30,16 +30,17 @@ const DashboardPage = () => {
   }, [SQL, sqlLoading]);
 
   return (
-    <div className="flex flex-col min-h-svh">
+    <div className="flex min-h-svh flex-col">
       <Header />
-      <main className="mx-auto flex flex-1 flex-col justify-center text-center">
+      <main className="mx-auto flex flex-1 flex-col justify-center">
         {sqlLoading
           ? "Loading SQL..."
           : initError
             ? initError.message
             : !SQL && "Could not load SQL"}
+        <Editor />
         {table && (
-          <table className="mx-auto my-8 w-min caption-bottom border-collapse border-2 border-gray-600">
+          <table className="mx-auto my-8 w-min caption-bottom border-collapse border-2 border-gray-600 text-center">
             <caption className="my-2 font-bold">Users</caption>
             <thead>
               <tr>

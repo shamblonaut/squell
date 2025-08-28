@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+/* CodeMirror Styles */
+.cm-editor,
+.cm-scroller,
+.cm-content {
+  min-height: 50vh !important;
+}
