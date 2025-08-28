@@ -7,17 +7,22 @@ import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { sql } from "@codemirror/lang-sql";
 
-const Editor = () => {
+const Editor = ({ initialDoc, onChange }) => {
   const editorRef = useRef();
 
   useEffect(() => {
     const startState = EditorState.create({
-      doc: "SELECT * FROM users;",
+      doc: initialDoc,
       extensions: [
         basicSetup,
         keymap.of([defaultKeymap, indentWithTab]),
         oneDark,
         sql(),
+        EditorView.updateListener.of((update) => {
+          if (!update.changes || !onChange) return;
+
+          onChange(update.state.doc.toString());
+        }),
       ],
     });
 
@@ -29,11 +34,11 @@ const Editor = () => {
     return () => {
       view.destroy();
     };
-  }, []);
+  }, [initialDoc, onChange]);
 
   return (
     <div
-      className="w-[80vw] overflow-hidden rounded-sm border border-gray-600"
+      className="w-[36vw] min-w-sm overflow-hidden rounded-sm border border-gray-600"
       ref={editorRef}
     ></div>
   );
