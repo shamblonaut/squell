@@ -1,30 +1,34 @@
 import { useEffect, useState } from "react";
 
-import { useSQL } from "@/hooks";
+import { Database } from "@/lib/database";
 
 import { Header, Workspace } from "@/components";
 
 const DashboardPage = () => {
-  const { SQL, error: initError, loading: sqlLoading } = useSQL();
-
-  const [database, setDatabase] = useState();
+  const [sqlLoading, setSqlLoading] = useState(true);
+  const [initError, setInitError] = useState(null);
 
   useEffect(() => {
-    if (!SQL) return;
-
-    setDatabase(new SQL.Database());
-  }, [SQL, sqlLoading]);
-
+    Database.init()
+      .catch((error) => {
+        setInitError(error.message);
+      })
+      .finally(() => {
+        setSqlLoading(false);
+      });
+  }, []);
   return (
     <div className="flex min-h-svh flex-col">
       <Header />
-      <main className="mx-auto flex-1">
-        {sqlLoading
-          ? "Loading SQL..."
-          : initError
-            ? initError.message
-            : !SQL && "Could not load SQL"}
-        {database && <Workspace db={database} />}
+      <main className="mx-auto flex flex-1 flex-col">
+        {initError ? (
+          <div className="mb-32 flex flex-1 flex-col justify-center text-center">
+            <p className="italic">Error while initializing SQL worker:</p>
+            <p className="my-2 text-xl font-bold text-red-400">{initError}</p>
+          </div>
+        ) : (
+          !sqlLoading && <Workspace />
+        )}
       </main>
     </div>
   );

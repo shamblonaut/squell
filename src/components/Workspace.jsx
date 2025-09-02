@@ -1,7 +1,10 @@
 import { useCallback, useState } from "react";
 import { Play } from "lucide-react";
 
+import { Database } from "@/lib/database";
+
 import { Editor, Panel } from "@/components";
+import { useEffect } from "react";
 
 const SQL_CODE = `DROP TABLE IF EXISTS users;
 CREATE TABLE users (
@@ -16,38 +19,53 @@ INSERT INTO users (name, comment) VALUES
 
 SELECT * FROM users;`;
 
-const Workspace = ({ db }) => {
+const Workspace = () => {
+  const [database, setDatabase] = useState();
   const [code, setCode] = useState("");
-  const [table, setTable] = useState();
+  const [table, setTable] = useState(null);
+  const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
 
-  const handleRunClick = () => {
-    try {
-      const result = db.exec(code);
-      console.log(result);
+  useEffect(() => {
+    const database = new Database();
+    setDatabase(database);
 
-      setTable(result[0]);
-      setError("");
-    } catch (error) {
-      console.error(error);
-      setError(error.message);
-    }
+    return () => database.close();
+  }, []);
+
+  const handleRunClick = async () => {
+    if (processing) return;
+    setProcessing(true);
+
+    database
+      .exec(code)
+      .then((result) => {
+        setTable(result[0]);
+        setError("");
+      })
+      .catch((error) => {
+        setError(error.message);
+      })
+      .finally(() => {
+        setProcessing(false);
+      });
   };
   const handleCodeChange = useCallback((updatedCode) => {
     setCode(updatedCode);
   }, []);
 
   return (
-    <div className="m-8 grid grid-cols-1 grid-rows-[min-content_1fr] overflow-hidden rounded-sm border border-gray-600 md:grid-cols-2 md:grid-rows-1 ">
+    <div className="my-4 grid w-[90vw] grid-cols-1 grid-rows-[50svh_min-content] overflow-hidden rounded-sm border border-gray-600 lg:grid-cols-2 lg:grid-rows-[84svh]">
       <Panel
-        className="border-b border-gray-600 md:border-r md:border-b-0"
+        className="border-b border-gray-600 lg:border-r lg:border-b-0"
         title="Query"
-        actions={
+        barItems={
           <button
-            className="flex gap-2 rounded-sm bg-green-400 px-2 py-1 font-bold text-white"
+            className="flex gap-2 rounded-sm bg-green-400 px-2 py-1 font-bold text-white disabled:bg-green-700 disabled:text-gray-300"
             onClick={handleRunClick}
+            disabled={processing}
           >
-            <Play className="w-4" /> Run
+            <Play className="w-4" /> {processing ? "Running..." : "Run"}
           </button>
         }
       >
@@ -63,7 +81,7 @@ const Workspace = ({ db }) => {
           </div>
         ) : table ? (
           <div className="flex h-full min-w-min flex-col items-center p-8">
-            <table className="w-min border-collapse border-2 border-gray-600 text-center md:mx-auto">
+            <table className="w-min border-collapse border-2 border-gray-600 text-center lg:mx-auto">
               <thead>
                 <tr>
                   {table.columns.map((column, index) => (
@@ -93,7 +111,7 @@ const Workspace = ({ db }) => {
             </table>
           </div>
         ) : (
-          <div className="p-8 text-center">
+          <div className="px-8 py-16 text-center">
             <em>Run a query to see results</em>
           </div>
         )}

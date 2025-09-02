@@ -36,12 +36,7 @@ const Editor = ({ initialDoc, onChange }) => {
     };
   }, [initialDoc, onChange]);
 
-  return (
-    <div
-      className="h-full min-h-[42vh] w-[90vw] max-w-full md:min-h-[76vh] md:w-[42vw]"
-      ref={editorRef}
-    ></div>
-  );
+  return <div className="h-full w-full" ref={editorRef}></div>;
 };
 
 export default Editor;
