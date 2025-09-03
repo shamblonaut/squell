@@ -64,7 +64,7 @@ const Workspace = () => {
         title="Query"
         barItems={
           <button
-            className="flex gap-2 rounded-sm bg-green-400 px-2 py-1 font-bold text-white disabled:bg-green-700 disabled:text-gray-300"
+            className="flex gap-2 rounded-sm bg-green-400 px-3 py-1 font-bold text-white disabled:bg-green-700 disabled:text-gray-300"
             onClick={handleRunClick}
             disabled={processing}
           >
@@ -88,9 +88,9 @@ const Workspace = () => {
         }
       >
         {error ? (
-          <div className="h-full min-w-min bg-red-500 p-4 text-white">
-            <p className="ml-2 text-xl font-bold">SQL Error:</p>
-            <div className="my-2 rounded-sm bg-gray-700  p-4 font-mono">
+          <div className="h-full min-w-min p-4 text-white">
+            <p className="ml-2 text-xl font-bold text-red-400">SQL Error:</p>
+            <div className="my-2 rounded-sm bg-gray-700 p-4 font-[JetBrains_Mono]">
               {error}
             </div>
           </div>
@@ -99,8 +99,8 @@ const Workspace = () => {
             <em>Executing query...</em>
           </div>
         ) : table ? (
-          <div className="flex h-full min-w-min flex-col items-center p-8">
-            <table className="w-min border-collapse border-2 border-gray-600 text-center lg:mx-auto">
+          <div className="flex h-min min-w-min flex-col items-center p-8">
+            <table className="w-min border-collapse border-2 border-gray-600 text-center font-[JetBrains_Mono] lg:mx-auto">
               <thead>
                 <tr>
                   {table.columns.map((column, index) => (

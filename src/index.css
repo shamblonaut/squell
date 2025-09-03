@@ -1,6 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Quicksand:wght@300..700&display=swap");
 
 @import "tailwindcss";
+
+body {
+  font-family: "Quicksand", system-ui, sans-serif;
+}
 
 button {
   cursor: pointer;
@@ -14,6 +18,16 @@ button {
 }
 
 .cm-scroller {
+  overscroll-behavior-x: none;
   font-family: "JetBrains Mono", monospace !important;
   font-size: 0.9rem;
+}
+
+.cm-content {
+  height: fit-content;
+  padding-bottom: 100px !important;
+}
+
+.cm-line {
+  padding-right: 100px !important;
 }
