@@ -23,6 +23,7 @@ const Workspace = () => {
   const [database, setDatabase] = useState();
   const [code, setCode] = useState("");
   const [table, setTable] = useState(null);
+  const [execTime, setExecTime] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
 
@@ -37,6 +38,7 @@ const Workspace = () => {
     if (processing) return;
     setProcessing(true);
 
+    const t0 = performance.now();
     database
       .exec(code)
       .then((result) => {
@@ -47,6 +49,7 @@ const Workspace = () => {
         setError(error.message);
       })
       .finally(() => {
+        setExecTime(Math.round(performance.now() - t0));
         setProcessing(false);
       });
   };
@@ -65,19 +68,35 @@ const Workspace = () => {
             onClick={handleRunClick}
             disabled={processing}
           >
-            <Play className="w-4" /> {processing ? "Running..." : "Run"}
+            {processing ? (
+              "Running..."
+            ) : (
+              <>
+                <Play className="w-4" /> Run
+              </>
+            )}
           </button>
         }
       >
         <Editor initialDoc={SQL_CODE} onChange={handleCodeChange} />
       </Panel>
-      <Panel title="Result">
+      <Panel
+        title="Result"
+        barItems={
+          !processing &&
+          execTime && <p className="italic">Query took {execTime} ms</p>
+        }
+      >
         {error ? (
           <div className="h-full min-w-min bg-red-500 p-4 text-white">
             <p className="ml-2 text-xl font-bold">SQL Error:</p>
             <div className="my-2 rounded-sm bg-gray-700  p-4 font-mono">
               {error}
             </div>
+          </div>
+        ) : processing ? (
+          <div className="px-8 py-16 text-center">
+            <em>Executing query...</em>
           </div>
         ) : table ? (
           <div className="flex h-full min-w-min flex-col items-center p-8">
