@@ -1,6 +1,6 @@
 import HomePage from "./HomePage";
-import DashboardPage from "./DashboardPage";
+import PlaygroundPage from "./PlaygroundPage";
 
 import ErrorPage from "./ErrorPage";
 
-export { HomePage, DashboardPage, ErrorPage };
+export { HomePage, PlaygroundPage, ErrorPage };

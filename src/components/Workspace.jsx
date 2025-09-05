@@ -19,38 +19,48 @@ INSERT INTO users (name, comment) VALUES
 
 SELECT * FROM users;`;
 
-const Workspace = () => {
+const defaultConfig = { playground: false };
+
+const Workspace = ({ config = defaultConfig }) => {
   const [database, setDatabase] = useState();
   const [code, setCode] = useState("");
-  const [table, setTable] = useState(null);
+  const [tables, setTables] = useState(null);
   const [execTime, setExecTime] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (config.playground) return;
+
     const database = new Database();
     setDatabase(database);
 
     return () => database.close();
-  }, []);
+  }, [config.playground]);
 
   const handleRunClick = async () => {
     if (processing) return;
     setProcessing(true);
 
-    const t0 = performance.now();
-    database
-      .exec(code)
-      .then((result) => {
-        setTable(result[0]);
+    const db = config.playground ? new Database() : database;
+
+    db.exec(code)
+      .then(({ result, time }) => {
+        setTables(result);
+        setExecTime(Math.round(time));
         setError("");
       })
       .catch((error) => {
+        setTables(null);
+        setExecTime(null);
         setError(error.message);
       })
       .finally(() => {
-        setExecTime(Math.round(performance.now() - t0));
         setProcessing(false);
+
+        if (config.playground) {
+          db.close();
+        }
       });
   };
   const handleCodeChange = useCallback((updatedCode) => {
@@ -98,36 +108,41 @@ const Workspace = () => {
           <div className="px-8 py-16 text-center">
             <em className="text-xl">Executing query...</em>
           </div>
-        ) : table ? (
-          <div className="flex h-min min-w-min flex-col items-center p-8">
-            <table className="w-full border-collapse border-2 border-invert-2 text-center font-[JetBrains_Mono] lg:mx-auto">
-              <thead>
-                <tr>
-                  {table.columns.map((column, index) => (
-                    <th
-                      key={index}
-                      className="min-w-min border-2 border-invert-2 px-8 py-2"
-                    >
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {table.values.map((row, index) => (
-                  <tr key={index}>
-                    {row.map((value, index) => (
-                      <td
+        ) : tables ? (
+          <div className="flex h-min min-w-min flex-col items-center gap-8 p-8">
+            {tables.map((table, index) => (
+              <table
+                className="w-full border-collapse border-2 border-invert-2 text-center font-[JetBrains_Mono] lg:mx-auto"
+                key={index}
+              >
+                <thead>
+                  <tr>
+                    {table.columns.map((column, index) => (
+                      <th
                         key={index}
                         className="min-w-min border-2 border-invert-2 px-8 py-2"
                       >
-                        {value}
-                      </td>
+                        {column}
+                      </th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {table.values.map((row, index) => (
+                    <tr key={index}>
+                      {row.map((value, index) => (
+                        <td
+                          key={index}
+                          className="min-w-min border-2 border-invert-2 px-8 py-2"
+                        >
+                          {value}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ))}
           </div>
         ) : (
           <div className="px-8 py-16 text-center">

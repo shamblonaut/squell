@@ -4,7 +4,7 @@ import { Database } from "@/lib/database";
 
 import { Workspace } from "@/components";
 
-const DashboardPage = () => {
+const PlaygroundPage = () => {
   const [sqlLoading, setSqlLoading] = useState(true);
   const [initError, setInitError] = useState(null);
 
@@ -32,10 +32,10 @@ const DashboardPage = () => {
           <em>Loading SQL...</em>
         </div>
       ) : (
-        !sqlLoading && <Workspace />
+        !sqlLoading && <Workspace config={{ playground: true }} />
       )}
     </main>
   );
 };
 
-export default DashboardPage;
+export default PlaygroundPage;

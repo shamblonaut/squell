@@ -30,13 +30,7 @@ export class Database {
     });
   }
 
-  constructor() {
-    this.id = crypto.randomUUID();
-
-    this._send("open");
-  }
-
-  _send(type, payload = {}) {
+  #send(type, payload = {}) {
     const messageID = crypto.randomUUID();
     Database.worker.postMessage({
       id: messageID,
@@ -50,19 +44,24 @@ export class Database {
     });
   }
 
+  constructor() {
+    this.id = crypto.randomUUID();
+
+    this.#send("open");
+  }
+
   async exec(sql) {
-    return this._send("exec", { sql }).then((response) => {
-      const { result } = response.payload;
-      return result;
+    return this.#send("exec", { sql }).then((response) => {
+      return response.payload;
     });
   }
 
   async close() {
-    return this._send("close");
+    return this.#send("close");
   }
 
   async getData() {
-    return this._send("data").then((response) => {
+    return this.#send("data").then((response) => {
       const { data } = response.payload;
       return data;
     });

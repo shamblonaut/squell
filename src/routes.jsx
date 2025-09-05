@@ -1,6 +1,6 @@
 import Layout from "./Layout";
 
-import { DashboardPage, HomePage, ErrorPage } from "@/pages";
+import { HomePage, PlaygroundPage, ErrorPage } from "@/pages";
 
 const routes = [
   {
@@ -9,7 +9,7 @@ const routes = [
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "dashboard", element: <DashboardPage /> },
+      { path: "playground", element: <PlaygroundPage /> },
     ],
   },
 ];

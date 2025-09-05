@@ -50,9 +50,16 @@ onmessage = async (event) => {
         }
 
         const { sql } = payload;
-        const result = db.exec(sql);
 
-        postMessage({ id, success: true, payload: { result } });
+        const initialTime = performance.now();
+        const result = db.exec(sql);
+        const finalTime = performance.now();
+
+        postMessage({
+          id,
+          success: true,
+          payload: { result, time: finalTime - initialTime },
+        });
         break;
       }
 

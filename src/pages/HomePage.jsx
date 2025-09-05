@@ -13,7 +13,7 @@ const HomePage = () => {
       </h4>
       <Link
         className="my-8 flex items-center gap-2 rounded-lg bg-red px-6 py-4 text-lg font-bold text-white"
-        to="/dashboard"
+        to="/playground"
       >
         Get Started <ChevronRight className="h-auto w-6" />
       </Link>
