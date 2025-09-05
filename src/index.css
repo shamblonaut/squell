@@ -2,8 +2,55 @@
 
 @import "tailwindcss";
 
+@theme {
+  --color-red: hsl(350, 61%, 58%); /* Cerise */
+  --color-purple: hsl(270, 50%, 60%); /* Amethyst */
+  --color-purple-light: hsl(270, 40%, 60%);
+  --color-purple-dark: hsl(270, 60%, 40%);
+
+  --color-base-0: var(--color-base-0);
+  --color-base-1: var(--color-base-1);
+  --color-base-2: var(--color-base-2);
+  --color-base-3: var(--color-base-3);
+  --color-invert-0: var(--color-invert-0);
+  --color-invert-1: var(--color-invert-1);
+  --color-invert-2: var(--color-invert-2);
+  --color-invert-3: var(--color-invert-3);
+}
+
+:root {
+  --color-base-0: var(--color-slate-50);
+  --color-base-1: var(--color-slate-100);
+  --color-base-2: var(--color-slate-200);
+  --color-base-3: var(--color-slate-300);
+  --color-invert-0: var(--color-slate-950);
+  --color-invert-1: var(--color-slate-800);
+  --color-invert-2: var(--color-slate-600);
+  --color-invert-3: var(--color-slate-400);
+}
+
+[data-theme="dark"] {
+  --color-base-0: var(--color-slate-950);
+  --color-base-1: var(--color-slate-900);
+  --color-base-2: var(--color-slate-800);
+  --color-base-3: var(--color-slate-700);
+  --color-invert-0: var(--color-slate-50);
+  --color-invert-1: var(--color-slate-200);
+  --color-invert-2: var(--color-slate-400);
+  --color-invert-3: var(--color-slate-600);
+}
+
+* {
+  transition:
+    background-color 500ms ease,
+    color 500ms ease,
+    border-color 500ms ease;
+}
+
 body {
   font-family: "Quicksand", system-ui, sans-serif;
+  background-color: var(--color-base-1);
+  color: var(--color-invert-0);
 }
 
 button {

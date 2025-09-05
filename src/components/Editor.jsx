@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 
 import { basicSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
@@ -7,7 +7,11 @@ import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { sql } from "@codemirror/lang-sql";
 
+import { ThemeContext } from "@/contexts";
+
 const Editor = ({ initialDoc, onChange }) => {
+  const { theme } = useContext(ThemeContext);
+
   const editorRef = useRef();
 
   useEffect(() => {
@@ -16,7 +20,7 @@ const Editor = ({ initialDoc, onChange }) => {
       extensions: [
         basicSetup,
         keymap.of([defaultKeymap, indentWithTab]),
-        oneDark,
+        theme === "dark" ? oneDark : EditorView.baseTheme(),
         sql(),
         EditorView.updateListener.of((update) => {
           if (!update.changes || !onChange) return;
@@ -34,7 +38,7 @@ const Editor = ({ initialDoc, onChange }) => {
     return () => {
       view.destroy();
     };
-  }, [initialDoc, onChange]);
+  }, [initialDoc, onChange, theme]);
 
   return <div className="h-full w-full" ref={editorRef}></div>;
 };

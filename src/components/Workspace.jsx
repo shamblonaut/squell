@@ -58,13 +58,13 @@ const Workspace = () => {
   }, []);
 
   return (
-    <div className="my-4 grid w-[90vw] grid-cols-1 grid-rows-[50svh_min-content] overflow-hidden rounded-sm border border-gray-600 lg:grid-cols-2 lg:grid-rows-[84svh]">
+    <div className="my-8 grid w-[90vw] flex-1 grid-cols-1 grid-rows-[50svh_auto] overflow-hidden rounded-sm border border-base-3 lg:max-h-[85svh] lg:grid-cols-2 lg:grid-rows-1">
       <Panel
-        className="border-b border-gray-600 lg:border-r lg:border-b-0"
+        className="border-b border-base-3 lg:border-r lg:border-b-0"
         title="Query"
         barItems={
           <button
-            className="flex gap-2 rounded-sm bg-green-400 px-3 py-1 font-bold text-white disabled:bg-green-700 disabled:text-gray-300"
+            className="flex gap-2 rounded-sm bg-purple px-3 py-1 font-bold text-slate-50 disabled:bg-purple-dark disabled:text-slate-300"
             onClick={handleRunClick}
             disabled={processing}
           >
@@ -88,25 +88,25 @@ const Workspace = () => {
         }
       >
         {error ? (
-          <div className="h-full min-w-min p-4 text-white">
-            <p className="ml-2 text-xl font-bold text-red-400">SQL Error:</p>
-            <div className="my-2 rounded-sm bg-gray-700 p-4 font-[JetBrains_Mono]">
+          <div className="h-full min-w-min p-4 lg:p-8">
+            <p className="ml-2 text-2xl font-bold text-red">SQL Error:</p>
+            <div className="my-2 rounded-sm bg-base-3 p-4 font-[JetBrains_Mono]">
               {error}
             </div>
           </div>
         ) : processing ? (
           <div className="px-8 py-16 text-center">
-            <em>Executing query...</em>
+            <em className="text-xl">Executing query...</em>
           </div>
         ) : table ? (
           <div className="flex h-min min-w-min flex-col items-center p-8">
-            <table className="w-min border-collapse border-2 border-gray-600 text-center font-[JetBrains_Mono] lg:mx-auto">
+            <table className="w-full border-collapse border-2 border-invert-2 text-center font-[JetBrains_Mono] lg:mx-auto">
               <thead>
                 <tr>
                   {table.columns.map((column, index) => (
                     <th
                       key={index}
-                      className="border border-gray-600 px-8 py-2"
+                      className="min-w-min border-2 border-invert-2 px-8 py-2"
                     >
                       {column}
                     </th>
@@ -119,7 +119,7 @@ const Workspace = () => {
                     {row.map((value, index) => (
                       <td
                         key={index}
-                        className="min-w-max border border-gray-600 px-8 py-2"
+                        className="min-w-min border-2 border-invert-2 px-8 py-2"
                       >
                         {value}
                       </td>
@@ -131,7 +131,7 @@ const Workspace = () => {
           </div>
         ) : (
           <div className="px-8 py-16 text-center">
-            <em>Run a query to see results</em>
+            <em className="text-xl">Run a query to see results</em>
           </div>
         )}
       </Panel>

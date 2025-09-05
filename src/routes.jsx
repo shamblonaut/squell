@@ -1,15 +1,16 @@
+import Layout from "./Layout";
+
 import { DashboardPage, HomePage, ErrorPage } from "@/pages";
 
 const routes = [
   {
     path: "/",
-    element: <HomePage />,
+    element: <Layout />,
     errorElement: <ErrorPage />,
-  },
-  {
-    path: "/dashboard",
-    element: <DashboardPage />,
-    errorElement: <ErrorPage />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "dashboard", element: <DashboardPage /> },
+    ],
   },
 ];
 

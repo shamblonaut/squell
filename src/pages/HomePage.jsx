@@ -5,14 +5,14 @@ import { ChevronRight } from "lucide-react";
 
 const HomePage = () => {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center text-center">
-      <img className="w-80" src={logo} alt="Squell Logo" />
-      <h1 className="m-8 text-5xl font-bold text-cyan-400">SQUELL</h1>
+    <main className="flex flex-1 flex-col items-center py-16 text-center">
+      <img className="w-64 flex-1" src={logo} alt="Squell Logo" />
+      <h1 className="m-8 text-5xl font-bold text-purple">SQUELL</h1>
       <h4 className="text-2xl font-medium italic">
         The SQL Editor of your dreams
       </h4>
       <Link
-        className="my-8 flex items-center gap-2 rounded-lg bg-red-400 px-6 py-4 text-lg font-bold text-white"
+        className="my-8 flex items-center gap-2 rounded-lg bg-red px-6 py-4 text-lg font-bold text-white"
         to="/dashboard"
       >
         Get Started <ChevronRight className="h-auto w-6" />

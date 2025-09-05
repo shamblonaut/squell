@@ -5,13 +5,13 @@ const ErrorPage = () => {
   const error = useRouteError();
 
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center text-center">
+    <main className="flex flex-1 flex-col items-center justify-center text-center">
       <h2 className="m-4 text-4xl font-bold">
         Error {error.status}: {error.statusText}
       </h2>
       <p className="m-4 text-lg">{error.data}</p>
       <Link
-        className="my-8 flex items-center gap-2 rounded-sm bg-red-400 px-8 py-2 text-lg font-bold text-white"
+        className="my-8 flex items-center gap-2 rounded-sm bg-red px-8 py-2 text-lg font-bold text-white"
         to="/"
       >
         <Home /> Go Home
