@@ -5,7 +5,6 @@
 @theme {
   --color-red: hsl(350, 61%, 58%); /* Cerise */
   --color-purple: hsl(270, 50%, 60%); /* Amethyst */
-  --color-purple-light: hsl(270, 40%, 60%);
   --color-purple-dark: hsl(270, 60%, 40%);
 
   --color-base-0: var(--color-base-0);
