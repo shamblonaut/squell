@@ -1,7 +1,8 @@
-import Header from "./Header";
-import Editor from "./Editor";
-import Workspace from "./Workspace";
-import Panel from "./Panel";
-import ThemeSwitcher from "./ThemeSwitcher";
-
-export { Header, Editor, Workspace, Panel, ThemeSwitcher };
+export { default as Header } from "./Header";
+export { default as Editor } from "./Editor";
+export { default as Workspace } from "./Workspace";
+export { default as Panel } from "./Panel";
+export { default as ActionButton } from "./ActionButton";
+export { default as ResultTable } from "./ResultTable";
+export { default as ThemeSwitcher } from "./ThemeSwitcher";
+export { default as ModalManager } from "./ModalManager";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Database } from "@/lib/database";
+import { SQLiteDatabase } from "@/lib/sqlite";
 
 import { Workspace } from "@/components";
 
@@ -9,7 +9,7 @@ const PlaygroundPage = () => {
   const [initError, setInitError] = useState(null);
 
   useEffect(() => {
-    Database.init()
+    SQLiteDatabase.init()
       .catch((error) => {
         setInitError(error.message);
       })

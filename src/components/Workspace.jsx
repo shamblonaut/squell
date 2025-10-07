@@ -1,10 +1,11 @@
-import { useCallback, useState } from "react";
-import { Play } from "lucide-react";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { ArrowBigDownDash, Save, Play } from "lucide-react";
 
-import { Database } from "@/lib/database";
+import { SQLiteDatabase } from "@/lib/sqlite";
+import { AppDataContext, ModalContext } from "@/contexts";
 
-import { Editor, Panel } from "@/components";
-import { useEffect } from "react";
+import { Editor, Panel, ActionButton, ResultTable } from "@/components";
+import { LoadQueryModal, SaveQueryModal } from "@/components/modals";
 
 const SQL_CODE = `DROP TABLE IF EXISTS users;
 CREATE TABLE users (
@@ -22,8 +23,14 @@ SELECT * FROM users;`;
 const defaultConfig = { playground: false };
 
 const Workspace = ({ config = defaultConfig }) => {
+  const { appData } = useContext(AppDataContext);
+  const { openModal } = useContext(ModalContext);
+
   const [database, setDatabase] = useState();
+
+  const [initialDoc, setInitialDoc] = useState(SQL_CODE);
   const [code, setCode] = useState("");
+
   const [tables, setTables] = useState(null);
   const [execTime, setExecTime] = useState(null);
   const [processing, setProcessing] = useState(false);
@@ -32,17 +39,43 @@ const Workspace = ({ config = defaultConfig }) => {
   useEffect(() => {
     if (config.playground) return;
 
-    const database = new Database();
+    const database = new SQLiteDatabase();
     setDatabase(database);
 
     return () => database.close();
   }, [config.playground]);
 
+  const handleSaveClick = async () => {
+    openModal(
+      <SaveQueryModal
+        onSubmit={({ queryName }) => {
+          appData.savedQueries.addRecord({
+            name: queryName,
+            code,
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+          });
+        }}
+      />,
+    );
+  };
+  const handleLoadClick = async () => {
+    const queries = await appData.savedQueries.getAllRecords();
+
+    openModal(
+      <LoadQueryModal
+        queries={queries}
+        onSubmit={({ selectedQuery }) => {
+          setInitialDoc(selectedQuery.code);
+        }}
+      />,
+    );
+  };
   const handleRunClick = async () => {
     if (processing) return;
     setProcessing(true);
 
-    const db = config.playground ? new Database() : database;
+    const db = config.playground ? new SQLiteDatabase() : database;
 
     db.exec(code)
       .then(({ result, time }) => {
@@ -73,22 +106,30 @@ const Workspace = ({ config = defaultConfig }) => {
         className="border-b border-base-3 lg:border-r lg:border-b-0"
         title="Query"
         barItems={
-          <button
-            className="flex gap-2 rounded-sm bg-purple px-3 py-1 font-bold text-slate-50 disabled:bg-purple-dark disabled:text-slate-300"
-            onClick={handleRunClick}
-            disabled={processing}
-          >
-            {processing ? (
-              "Running..."
-            ) : (
-              <>
-                <Play className="w-4" /> Run
-              </>
-            )}
-          </button>
+          <>
+            <ActionButton
+              icon={<Save className="w-4" />}
+              display="Save"
+              className="bg-emerald-400 hover:bg-emerald-300 disabled:bg-emerald-500"
+              onClick={handleSaveClick}
+            />
+            <ActionButton
+              icon={<ArrowBigDownDash className="w-4" />}
+              display="Load"
+              className="bg-amber-400 hover:bg-amber-300 disabled:bg-amber-500"
+              onClick={handleLoadClick}
+            />
+            <ActionButton
+              icon={<Play className="w-4" />}
+              display={processing ? "Running..." : "Run"}
+              className="bg-red-400 hover:bg-red-300 disabled:bg-red-500"
+              onClick={handleRunClick}
+              disabled={processing}
+            />
+          </>
         }
       >
-        <Editor initialDoc={SQL_CODE} onChange={handleCodeChange} />
+        <Editor initialDoc={initialDoc} onChange={handleCodeChange} />
       </Panel>
       <Panel
         title="Result"
@@ -111,37 +152,7 @@ const Workspace = ({ config = defaultConfig }) => {
         ) : tables ? (
           <div className="flex h-min min-w-min flex-col items-center gap-8 p-8">
             {tables.map((table, index) => (
-              <table
-                className="w-full border-collapse border-2 border-invert-2 text-center font-[JetBrains_Mono] lg:mx-auto"
-                key={index}
-              >
-                <thead>
-                  <tr>
-                    {table.columns.map((column, index) => (
-                      <th
-                        key={index}
-                        className="min-w-min border-2 border-invert-2 px-8 py-2"
-                      >
-                        {column}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {table.values.map((row, index) => (
-                    <tr key={index}>
-                      {row.map((value, index) => (
-                        <td
-                          key={index}
-                          className="min-w-min border-2 border-invert-2 px-8 py-2"
-                        >
-                          {value}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <ResultTable table={table} key={index} />
             ))}
           </div>
         ) : (

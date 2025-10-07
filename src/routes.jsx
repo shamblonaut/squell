@@ -1,11 +1,11 @@
-import Layout from "./Layout";
+import App from "./App";
 
 import { HomePage, PlaygroundPage, ErrorPage } from "@/pages";
 
 const routes = [
   {
     path: "/",
-    element: <Layout />,
+    element: <App />,
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },

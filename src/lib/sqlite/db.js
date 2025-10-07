@@ -1,12 +1,13 @@
-export class Database {
-  static worker = new Worker(new URL("sql.worker.js", import.meta.url), {
+class SQLiteDatabase {
+  static worker = new Worker(new URL("worker.js", import.meta.url), {
     type: "module",
   });
   static workerPromises = new Map();
+
   static {
-    Database.worker.onmessage = (event) => {
+    SQLiteDatabase.worker.onmessage = (event) => {
       const { id } = event.data;
-      const pendingPromise = Database.workerPromises.get(id);
+      const pendingPromise = SQLiteDatabase.workerPromises.get(id);
       if (!pendingPromise) return;
 
       if (event.data.error) {
@@ -15,24 +16,25 @@ export class Database {
         pendingPromise.resolve(event.data);
       }
 
-      Database.workerPromises.delete(id);
+      SQLiteDatabase.workerPromises.delete(id);
     };
 
-    Database.worker.onerror = (event) => {
+    SQLiteDatabase.worker.onerror = (event) => {
       console.error("Worker failed to load:\n", event.message);
     };
   }
+
   static async init() {
     const messageID = crypto.randomUUID();
-    Database.worker.postMessage({ id: messageID, type: "init" });
+    SQLiteDatabase.worker.postMessage({ id: messageID, type: "init" });
     return new Promise((resolve, reject) => {
-      Database.workerPromises.set(messageID, { resolve, reject });
+      SQLiteDatabase.workerPromises.set(messageID, { resolve, reject });
     });
   }
 
   #send(type, payload = {}) {
     const messageID = crypto.randomUUID();
-    Database.worker.postMessage({
+    SQLiteDatabase.worker.postMessage({
       id: messageID,
       type,
       dbId: this.id,
@@ -40,7 +42,7 @@ export class Database {
     });
 
     return new Promise((resolve, reject) => {
-      Database.workerPromises.set(messageID, { resolve, reject });
+      SQLiteDatabase.workerPromises.set(messageID, { resolve, reject });
     });
   }
 
@@ -67,3 +69,5 @@ export class Database {
     });
   }
 }
+
+export default SQLiteDatabase;
