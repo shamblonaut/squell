@@ -1,6 +1,6 @@
 import App from "./App";
 
-import { HomePage, PlaygroundPage, ErrorPage } from "@/pages";
+import { HomePage, SandboxPage, DashboardPage, ErrorPage } from "@/pages";
 
 const routes = [
   {
@@ -9,7 +9,8 @@ const routes = [
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "playground", element: <PlaygroundPage /> },
+      { path: "sandbox", element: <SandboxPage /> },
+      { path: "dashboard", element: <DashboardPage /> },
     ],
   },
 ];

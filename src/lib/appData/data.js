@@ -27,9 +27,7 @@ class AppData {
   }
 
   async #processRequest(request) {
-    if (!this.db) {
-      throw new Error("DB not found");
-    } else if (!this.db.objectStoreNames.contains(this.type)) {
+    if (!this.db.objectStoreNames.contains(this.type)) {
       throw new Error(`Object store ${this.type} not found`);
     }
 
@@ -55,6 +53,10 @@ class AppData {
   }
 
   async addRecord(record) {
+    if (!this.db) {
+      throw new Error(`DB not found`);
+    }
+
     const key = await this.#processRequest(
       this.db
         .transaction(this.type, "readwrite")
@@ -69,6 +71,10 @@ class AppData {
   }
 
   async getRecord(key) {
+    if (!this.db) {
+      throw new Error("DB not found");
+    }
+
     const record = await this.#processRequest(
       this.db
         .transaction(this.type, "readonly")
@@ -83,6 +89,10 @@ class AppData {
   }
 
   async getAllRecords() {
+    if (!this.db) {
+      throw new Error("DB not found");
+    }
+
     const record = await this.#processRequest(
       this.db
         .transaction(this.type, "readonly")

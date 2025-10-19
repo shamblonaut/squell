@@ -1,13 +1,13 @@
-class SQLiteDatabase {
+class SQLiteDBManager {
   static worker = new Worker(new URL("worker.js", import.meta.url), {
     type: "module",
   });
   static workerPromises = new Map();
 
   static {
-    SQLiteDatabase.worker.onmessage = (event) => {
+    SQLiteDBManager.worker.onmessage = (event) => {
       const { id } = event.data;
-      const pendingPromise = SQLiteDatabase.workerPromises.get(id);
+      const pendingPromise = SQLiteDBManager.workerPromises.get(id);
       if (!pendingPromise) return;
 
       if (event.data.error) {
@@ -16,25 +16,25 @@ class SQLiteDatabase {
         pendingPromise.resolve(event.data);
       }
 
-      SQLiteDatabase.workerPromises.delete(id);
+      SQLiteDBManager.workerPromises.delete(id);
     };
 
-    SQLiteDatabase.worker.onerror = (event) => {
+    SQLiteDBManager.worker.onerror = (event) => {
       console.error("Worker failed to load:\n", event.message);
     };
   }
 
   static async init() {
     const messageID = crypto.randomUUID();
-    SQLiteDatabase.worker.postMessage({ id: messageID, type: "init" });
+    SQLiteDBManager.worker.postMessage({ id: messageID, type: "init" });
     return new Promise((resolve, reject) => {
-      SQLiteDatabase.workerPromises.set(messageID, { resolve, reject });
+      SQLiteDBManager.workerPromises.set(messageID, { resolve, reject });
     });
   }
 
   #send(type, payload = {}) {
     const messageID = crypto.randomUUID();
-    SQLiteDatabase.worker.postMessage({
+    SQLiteDBManager.worker.postMessage({
       id: messageID,
       type,
       dbId: this.id,
@@ -42,14 +42,14 @@ class SQLiteDatabase {
     });
 
     return new Promise((resolve, reject) => {
-      SQLiteDatabase.workerPromises.set(messageID, { resolve, reject });
+      SQLiteDBManager.workerPromises.set(messageID, { resolve, reject });
     });
   }
 
-  constructor() {
+  constructor(data) {
     this.id = crypto.randomUUID();
 
-    this.#send("open");
+    this.#send("open", { data });
   }
 
   async exec(sql) {
@@ -70,4 +70,4 @@ class SQLiteDatabase {
   }
 }
 
-export default SQLiteDatabase;
+export default SQLiteDBManager;

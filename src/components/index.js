@@ -6,3 +6,5 @@ export { default as ActionButton } from "./ActionButton";
 export { default as ResultTable } from "./ResultTable";
 export { default as ThemeSwitcher } from "./ThemeSwitcher";
 export { default as ModalManager } from "./ModalManager";
+export { default as ModalForm } from "./ModalForm";
+export { default as SQLEngineSuspense } from "./SQLEngineSuspense";

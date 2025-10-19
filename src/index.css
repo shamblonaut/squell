@@ -41,15 +41,23 @@
 
 * {
   transition:
-    background-color 500ms ease,
-    color 500ms ease,
-    border-color 500ms ease;
+    background-color 300ms ease,
+    color 300ms ease,
+    border-color 300ms ease;
 }
 
 body {
   font-family: "Quicksand", system-ui, sans-serif;
   background-color: var(--color-base-1);
   color: var(--color-invert-0);
+}
+
+body:has(dialog) {
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100svh;
 }
 
 button {

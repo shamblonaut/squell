@@ -30,6 +30,7 @@ const ModalManager = ({ open }) => {
   return createPortal(
     <dialog
       ref={dialogRef}
+      closedby="any"
       className="m-auto rounded-xl border border-base-3 bg-base-1 p-4 text-invert-0 outline-none backdrop:backdrop-blur-xs"
     >
       {modal}

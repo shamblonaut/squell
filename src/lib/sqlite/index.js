@@ -1,1 +1,1 @@
-export { default as SQLiteDatabase } from "./db";
+export { default as SQLiteDBManager } from "./manager";

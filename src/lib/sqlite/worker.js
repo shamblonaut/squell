@@ -25,7 +25,10 @@ onmessage = async (event) => {
         break;
       }
       case "open": {
-        const db = new SQL.Database();
+        const { data } = payload;
+
+        // Open a fresh DB or a from a previous state if provided
+        const db = data ? new SQL.Database(data) : new SQL.Database();
         dbs.set(dbId, db);
 
         postMessage({ id, success: true });
@@ -69,7 +72,9 @@ onmessage = async (event) => {
           throw new Error("DB not found");
         }
 
-        postMessage({ id, success: true, payload: { data: db } });
+        const data = db.export();
+
+        postMessage({ id, success: true, payload: { data } });
         break;
       }
     }

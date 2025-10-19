@@ -1,6 +1,5 @@
-import HomePage from "./HomePage";
-import PlaygroundPage from "./PlaygroundPage";
+export { default as HomePage } from "./HomePage";
+export { default as SandboxPage } from "./SandboxPage";
+export { default as DashboardPage } from "./DashboardPage";
 
-import ErrorPage from "./ErrorPage";
-
-export { HomePage, PlaygroundPage, ErrorPage };
+export { default as ErrorPage } from "./ErrorPage";

@@ -1,11 +1,16 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { ArrowBigDownDash, Save, Play } from "lucide-react";
 
-import { SQLiteDatabase } from "@/lib/sqlite";
+import { SQLiteDBManager } from "@/lib/sqlite";
 import { AppDataContext, ModalContext } from "@/contexts";
 
-import { Editor, Panel, ActionButton, ResultTable } from "@/components";
-import { LoadQueryModal, SaveQueryModal } from "@/components/modals";
+import {
+  Editor,
+  Panel,
+  ActionButton,
+  ResultTable,
+  ModalForm,
+} from "@/components";
 
 const SQL_CODE = `DROP TABLE IF EXISTS users;
 CREATE TABLE users (
@@ -20,10 +25,10 @@ INSERT INTO users (name, comment) VALUES
 
 SELECT * FROM users;`;
 
-const defaultConfig = { playground: false };
+const defaultConfig = { sandbox: false };
 
 const Workspace = ({ config = defaultConfig }) => {
-  const { appData } = useContext(AppDataContext);
+  const { savedQueries } = useContext(AppDataContext);
   const { openModal } = useContext(ModalContext);
 
   const [database, setDatabase] = useState();
@@ -37,20 +42,29 @@ const Workspace = ({ config = defaultConfig }) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (config.playground) return;
+    if (config.sandbox) return;
 
-    const database = new SQLiteDatabase();
+    const database = new SQLiteDBManager();
     setDatabase(database);
 
     return () => database.close();
-  }, [config.playground]);
+  }, [config.sandbox]);
 
   const handleSaveClick = async () => {
     openModal(
-      <SaveQueryModal
-        onSubmit={({ queryName }) => {
-          appData.savedQueries.addRecord({
-            name: queryName,
+      <ModalForm
+        title="Save Query"
+        fields={[
+          {
+            name: "name",
+            label: "Query Name",
+            type: "text",
+          },
+        ]}
+        submitText="Save"
+        onSubmit={(formData) => {
+          savedQueries.addRecord({
+            name: formData.get("name"),
             code,
             createdAt: new Date(),
             modifiedAt: new Date(),
@@ -60,13 +74,26 @@ const Workspace = ({ config = defaultConfig }) => {
     );
   };
   const handleLoadClick = async () => {
-    const queries = await appData.savedQueries.getAllRecords();
-
+    const queries = await savedQueries.getAllRecords();
     openModal(
-      <LoadQueryModal
-        queries={queries}
-        onSubmit={({ selectedQuery }) => {
-          setInitialDoc(selectedQuery.code);
+      <ModalForm
+        title="Load Query"
+        fields={[
+          {
+            name: "query-index",
+            label: "Select query to load:",
+            type: "select",
+            options: queries.map((query, index) => ({
+              value: index,
+              text: `[${query.id}] ${query.name}`,
+            })),
+            noOptionsMessage: "There are no saved queries",
+          },
+        ]}
+        submitText="Load"
+        onSubmit={(formData) => {
+          const query = queries[formData.get("query-index")];
+          setInitialDoc(query.code);
         }}
       />,
     );
@@ -75,7 +102,7 @@ const Workspace = ({ config = defaultConfig }) => {
     if (processing) return;
     setProcessing(true);
 
-    const db = config.playground ? new SQLiteDatabase() : database;
+    const db = config.sandbox ? new SQLiteDBManager() : database;
 
     db.exec(code)
       .then(({ result, time }) => {
@@ -91,7 +118,7 @@ const Workspace = ({ config = defaultConfig }) => {
       .finally(() => {
         setProcessing(false);
 
-        if (config.playground) {
+        if (config.sandbox) {
           db.close();
         }
       });
@@ -101,7 +128,7 @@ const Workspace = ({ config = defaultConfig }) => {
   }, []);
 
   return (
-    <div className="my-8 grid w-[90vw] flex-1 grid-cols-1 grid-rows-[50svh_auto] overflow-hidden rounded-sm border border-base-3 lg:max-h-[85svh] lg:grid-cols-2 lg:grid-rows-1">
+    <div className="grid flex-1 grid-cols-1 grid-rows-[50svh_auto] overflow-hidden lg:grid-cols-2 lg:grid-rows-1">
       <Panel
         className="border-b border-base-3 lg:border-r lg:border-b-0"
         title="Query"
@@ -110,19 +137,19 @@ const Workspace = ({ config = defaultConfig }) => {
             <ActionButton
               icon={<Save className="w-4" />}
               display="Save"
-              className="bg-emerald-400 hover:bg-emerald-300 disabled:bg-emerald-500"
+              className="bg-emerald-400 hover:bg-emerald-500"
               onClick={handleSaveClick}
             />
             <ActionButton
               icon={<ArrowBigDownDash className="w-4" />}
               display="Load"
-              className="bg-amber-400 hover:bg-amber-300 disabled:bg-amber-500"
+              className="bg-amber-400 hover:bg-amber-500"
               onClick={handleLoadClick}
             />
             <ActionButton
               icon={<Play className="w-4" />}
-              display={processing ? "Running..." : "Run"}
-              className="bg-red-400 hover:bg-red-300 disabled:bg-red-500"
+              display={processing ? "Running" : "Run"}
+              className="bg-red-400 hover:bg-red-500 disabled:bg-red-600"
               onClick={handleRunClick}
               disabled={processing}
             />
