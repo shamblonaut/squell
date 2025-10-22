@@ -58,15 +58,21 @@ class SQLiteDBManager {
     });
   }
 
-  async close() {
-    return this.#send("close");
+  async getTables() {
+    return this.exec(
+      "SELECT * FROM sqlite_master WHERE type = 'table' AND name <> 'sqlite_sequence'",
+    ).then(({ result }) => result[0]?.values || []);
   }
 
   async getData() {
-    return this.#send("data").then((response) => {
+    return this.#send("export").then((response) => {
       const { data } = response.payload;
       return data;
     });
+  }
+
+  async close() {
+    return this.#send("close");
   }
 }
 

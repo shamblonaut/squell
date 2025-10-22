@@ -1,8 +1,9 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ArrowBigDownDash, Save, Play } from "lucide-react";
 
 import { SQLiteDBManager } from "@/lib/sqlite";
-import { AppDataContext, ModalContext } from "@/contexts";
+
+import { useAppData, useModal, useSQLEngine } from "@/hooks";
 
 import {
   Editor,
@@ -12,8 +13,7 @@ import {
   ModalForm,
 } from "@/components";
 
-const SQL_CODE = `DROP TABLE IF EXISTS users;
-CREATE TABLE users (
+const SQL_CODE = `CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT, comment TEXT
 );
@@ -28,27 +28,17 @@ SELECT * FROM users;`;
 const defaultConfig = { sandbox: false };
 
 const Workspace = ({ config = defaultConfig }) => {
-  const { savedQueries } = useContext(AppDataContext);
-  const { openModal } = useContext(ModalContext);
+  const { openModal } = useModal();
+  const { savedQueries, dbData } = useAppData();
+  const { database, setDatabase } = useSQLEngine();
 
-  const [database, setDatabase] = useState();
-
-  const [initialDoc, setInitialDoc] = useState(SQL_CODE);
+  const [initialDoc, setInitialDoc] = useState(config.sandbox ? SQL_CODE : "");
   const [code, setCode] = useState("");
 
   const [tables, setTables] = useState(null);
   const [execTime, setExecTime] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (config.sandbox) return;
-
-    const database = new SQLiteDBManager();
-    setDatabase(database);
-
-    return () => database.close();
-  }, [config.sandbox]);
 
   const handleSaveClick = async () => {
     openModal(
@@ -73,6 +63,7 @@ const Workspace = ({ config = defaultConfig }) => {
       />,
     );
   };
+
   const handleLoadClick = async () => {
     const queries = await savedQueries.getAllRecords();
     openModal(
@@ -98,17 +89,28 @@ const Workspace = ({ config = defaultConfig }) => {
       />,
     );
   };
+
   const handleRunClick = async () => {
-    if (processing) return;
+    if (processing || !dbData) return;
     setProcessing(true);
 
-    const db = config.sandbox ? new SQLiteDBManager() : database;
+    const dbManager = config.sandbox ? new SQLiteDBManager() : database.manager;
 
-    db.exec(code)
+    dbManager
+      .exec(code)
       .then(({ result, time }) => {
         setTables(result);
         setExecTime(Math.round(time));
         setError("");
+
+        if (config.sandbox) return;
+
+        dbManager.getData().then((data) => {
+          dbManager.getTables().then((tables) => {
+            dbData.updateRecord(database.id, { data, tables });
+            setDatabase((prev) => ({ ...prev, tables }));
+          });
+        });
       })
       .catch((error) => {
         setTables(null);
@@ -119,7 +121,7 @@ const Workspace = ({ config = defaultConfig }) => {
         setProcessing(false);
 
         if (config.sandbox) {
-          db.close();
+          dbManager.close();
         }
       });
   };
@@ -162,7 +164,9 @@ const Workspace = ({ config = defaultConfig }) => {
         title="Result"
         barItems={
           !processing &&
-          execTime && <p className="italic">Query took {execTime} ms</p>
+          execTime !== null && (
+            <p className="italic">Query took {execTime} ms</p>
+          )
         }
       >
         {error ? (
@@ -176,11 +180,15 @@ const Workspace = ({ config = defaultConfig }) => {
           <div className="px-8 py-16 text-center">
             <em className="text-xl">Executing query...</em>
           </div>
-        ) : tables ? (
+        ) : tables && tables.length !== 0 ? (
           <div className="flex h-min min-w-min flex-col items-center gap-8 p-8">
             {tables.map((table, index) => (
               <ResultTable table={table} key={index} />
             ))}
+          </div>
+        ) : tables ? (
+          <div className="px-8 py-16 text-center">
+            <em className="text-xl">No results produced</em>
           </div>
         ) : (
           <div className="px-8 py-16 text-center">

@@ -66,7 +66,7 @@ onmessage = async (event) => {
         break;
       }
 
-      case "data": {
+      case "export": {
         const db = dbs.get(dbId);
         if (!db) {
           throw new Error("DB not found");

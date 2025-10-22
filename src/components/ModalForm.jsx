@@ -63,7 +63,7 @@ const ModalForm = ({ title, fields, submitText, onSubmit }) => {
         </button>
         <button
           type="submit"
-          className="flex-1 rounded-md border border-emerald-500 bg-emerald-400 py-2 font-bold"
+          className="flex-1 rounded-md border border-emerald-500 bg-emerald-400 py-2 font-bold text-slate-50"
         >
           {submitText}
         </button>

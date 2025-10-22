@@ -15,6 +15,8 @@
   --color-invert-1: var(--color-invert-1);
   --color-invert-2: var(--color-invert-2);
   --color-invert-3: var(--color-invert-3);
+
+  --color-overlay: hsla(230 85% 5% / 50%);
 }
 
 :root {
@@ -23,9 +25,9 @@
   --color-base-2: var(--color-slate-200);
   --color-base-3: var(--color-slate-300);
   --color-invert-0: var(--color-slate-950);
-  --color-invert-1: var(--color-slate-800);
-  --color-invert-2: var(--color-slate-600);
-  --color-invert-3: var(--color-slate-400);
+  --color-invert-1: var(--color-slate-900);
+  --color-invert-2: var(--color-slate-800);
+  --color-invert-3: var(--color-slate-700);
 }
 
 [data-theme="dark"] {
@@ -34,9 +36,9 @@
   --color-base-2: var(--color-slate-800);
   --color-base-3: var(--color-slate-700);
   --color-invert-0: var(--color-slate-50);
-  --color-invert-1: var(--color-slate-200);
-  --color-invert-2: var(--color-slate-400);
-  --color-invert-3: var(--color-slate-600);
+  --color-invert-1: var(--color-slate-100);
+  --color-invert-2: var(--color-slate-200);
+  --color-invert-3: var(--color-slate-300);
 }
 
 * {

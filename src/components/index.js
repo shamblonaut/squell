@@ -1,4 +1,4 @@
-export { default as Header } from "./Header";
+export { default as Sidebar } from "./Sidebar";
 export { default as Editor } from "./Editor";
 export { default as Workspace } from "./Workspace";
 export { default as Panel } from "./Panel";
@@ -8,3 +8,4 @@ export { default as ThemeSwitcher } from "./ThemeSwitcher";
 export { default as ModalManager } from "./ModalManager";
 export { default as ModalForm } from "./ModalForm";
 export { default as SQLEngineSuspense } from "./SQLEngineSuspense";
+export { default as DatabaseList } from "./DatabaseList";
