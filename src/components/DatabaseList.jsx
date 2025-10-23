@@ -45,12 +45,13 @@ const DatabaseList = () => {
         ]}
         submitText="Create"
         onSubmit={async (formData) => {
+          const manager = new SQLiteDBManager();
+
           const name = formData.get("name");
           const data = await manager.getData();
           const tables = await manager.getTables();
           const id = await dbData.addRecord({ name, data, tables });
 
-          const manager = new SQLiteDBManager();
           setDatabaseList((prevList) => [
             ...prevList,
             { id, name, tables, manager },
