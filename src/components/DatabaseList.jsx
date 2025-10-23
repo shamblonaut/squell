@@ -1,36 +1,15 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Database, Plus } from "lucide-react";
 
 import { SQLiteDBManager } from "@/lib/sqlite";
-import { AppData } from "@/lib/appData";
 
-import { useAppData, useModal, useSQLEngine } from "@/hooks";
+import { useAppData, useDatabaseList, useModal } from "@/hooks";
 import { ModalForm } from "@/components";
 
 const DatabaseList = () => {
   const { dbData } = useAppData();
   const { openModal } = useModal();
-  const { engineLoading, engineInitError } = useSQLEngine();
-
-  const [databaseList, setDatabaseList] = useState([]);
-
-  useEffect(() => {
-    if (!dbData || !AppData.db || engineLoading || engineInitError) return;
-
-    dbData.getAllRecords().then(async (records) =>
-      setDatabaseList(
-        await Promise.all(
-          records.map(async (record) => {
-            const { id, name, tables } = record;
-            const manager = new SQLiteDBManager(record.data);
-
-            return { id, name, tables, manager };
-          }),
-        ),
-      ),
-    );
-  }, [dbData, engineLoading, engineInitError]);
+  const { databaseList, setDatabaseList } = useDatabaseList();
 
   const handleCreateClick = () => {
     openModal(
@@ -52,10 +31,7 @@ const DatabaseList = () => {
           const tables = await manager.getTables();
           const id = await dbData.addRecord({ name, data, tables });
 
-          setDatabaseList((prevList) => [
-            ...prevList,
-            { id, name, tables, manager },
-          ]);
+          setDatabaseList((prevList) => [...prevList, { id, name, tables }]);
         }}
       />,
     );
@@ -64,7 +40,7 @@ const DatabaseList = () => {
   return (
     <ul className="mx-8 grid grid-cols-[repeat(auto-fill,_minmax(min(24rem,_80vw),_1fr))] gap-4">
       {databaseList.map((database) => (
-        <li key={database.manager.id}>
+        <li key={database.id}>
           <Link
             to={`/db/${database.id}`}
             className="flex h-40 overflow-clip rounded-lg border border-base-3"

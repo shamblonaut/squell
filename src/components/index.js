@@ -7,5 +7,7 @@ export { default as ResultTable } from "./ResultTable";
 export { default as ThemeSwitcher } from "./ThemeSwitcher";
 export { default as ModalManager } from "./ModalManager";
 export { default as ModalForm } from "./ModalForm";
+export { default as Popup } from "./Popup";
 export { default as SQLEngineSuspense } from "./SQLEngineSuspense";
 export { default as DatabaseList } from "./DatabaseList";
+export { default as DatabaseSwitcher } from "./DatabaseSwitcher";

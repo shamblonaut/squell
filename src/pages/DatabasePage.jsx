@@ -33,10 +33,11 @@ const DatabasePage = () => {
     };
   }, [dbId, dbData, engineLoading, engineInitError, setDatabase]);
 
+  if (!database) return;
   return (
     <main className="flex min-h-0 flex-1 flex-col">
       <SQLEngineSuspense>
-        <Workspace database={database} />
+        <Workspace key={database.id} database={database} />
       </SQLEngineSuspense>
     </main>
   );

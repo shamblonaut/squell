@@ -27,7 +27,6 @@ const Editor = ({ initialDoc, onChange, runQuery, saveQuery, loadQuery }) => {
   }, [initialDoc, onChange, runQuery, saveQuery, loadQuery]);
 
   useEffect(() => {
-    console.log("update");
     const view = new EditorView({
       state: EditorState.create({
         doc: initialDoc,

@@ -3,6 +3,8 @@ import { PanelLeftClose, Table } from "lucide-react";
 
 import { useSQLEngine } from "@/hooks";
 
+import { DatabaseSwitcher } from "@/components";
+
 import logo from "/logo.svg";
 
 const Sidebar = ({ open, close }) => {
@@ -27,6 +29,11 @@ const Sidebar = ({ open, close }) => {
             <PanelLeftClose className="w-5 text-invert-1" />
           </button>
         </header>
+        {database && (
+          <div className="flex h-16 justify-center items-center border-b border-base-3">
+            <DatabaseSwitcher currentDB={database} />
+          </div>
+        )}
         <div className="flex h-16 items-center border-b border-base-3 py-4 font-bold">
           <div className="px-4">Tables</div>
         </div>
