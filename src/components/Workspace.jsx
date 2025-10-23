@@ -85,6 +85,7 @@ const Workspace = ({ config = defaultConfig }) => {
           },
         ]}
         submitText="Load"
+        submitHidden={queries.length === 0}
         onSubmit={(formData) => {
           const query = queries[formData.get("query-index")];
           setInitialDoc(query.code);

@@ -2,7 +2,13 @@ import { useContext, useRef } from "react";
 
 import { ModalContext } from "@/contexts";
 
-const ModalForm = ({ title, fields, submitText, onSubmit }) => {
+const ModalForm = ({
+  title,
+  fields,
+  submitText,
+  submitHidden = false,
+  onSubmit,
+}) => {
   const { closeModal } = useContext(ModalContext);
 
   const formRef = useRef(null);
@@ -61,12 +67,14 @@ const ModalForm = ({ title, fields, submitText, onSubmit }) => {
         >
           Cancel
         </button>
-        <button
-          type="submit"
-          className="flex-1 rounded-md border border-emerald-500 bg-emerald-400 py-2 font-bold text-slate-50"
-        >
-          {submitText}
-        </button>
+        {!submitHidden && (
+          <button
+            type="submit"
+            className="flex-1 rounded-md border border-emerald-500 bg-emerald-400 py-2 font-bold text-slate-50"
+          >
+            {submitText}
+          </button>
+        )}
       </div>
     </form>
   );
