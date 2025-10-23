@@ -24,7 +24,7 @@ const DatabaseLayout = () => {
         altPressed = true;
       }
 
-      if (altPressed && event.key === "o") {
+      if (altPressed && event.key === "s") {
         setIsSidebarOpen((isOpen) => !isOpen);
       }
     };

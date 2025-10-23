@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from "react";
 
 import { basicSetup } from "codemirror";
-import { EditorState } from "@codemirror/state";
+import { EditorState, Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -9,38 +9,74 @@ import { sql } from "@codemirror/lang-sql";
 
 import { ThemeContext } from "@/contexts";
 
-const Editor = ({ initialDoc, onChange }) => {
+const Editor = ({ initialDoc, onChange, runQuery, saveQuery, loadQuery }) => {
   const { theme } = useContext(ThemeContext);
 
-  const editorRef = useRef();
+  const containerRef = useRef(null);
+
+  const onChangeRef = useRef(onChange);
+  const runQueryRef = useRef(runQuery);
+  const saveQueryRef = useRef(saveQuery);
+  const loadQueryRef = useRef(loadQuery);
 
   useEffect(() => {
-    const startState = EditorState.create({
-      doc: initialDoc,
-      extensions: [
-        basicSetup,
-        keymap.of([defaultKeymap, indentWithTab]),
-        theme === "dark" ? oneDark : EditorView.baseTheme(),
-        sql(),
-        EditorView.updateListener.of((update) => {
-          if (!update.changes || !onChange) return;
+    onChangeRef.current = onChange;
+    runQueryRef.current = runQuery;
+    saveQueryRef.current = saveQuery;
+    loadQueryRef.current = loadQuery;
+  }, [initialDoc, onChange, runQuery, saveQuery, loadQuery]);
 
-          onChange(update.state.doc.toString());
-        }),
-      ],
-    });
-
+  useEffect(() => {
+    console.log("update");
     const view = new EditorView({
-      state: startState,
-      parent: editorRef.current,
+      state: EditorState.create({
+        doc: initialDoc,
+        extensions: [
+          basicSetup,
+          keymap.of([defaultKeymap, indentWithTab]),
+          Prec.high(
+            keymap.of([
+              {
+                key: "Mod-Enter",
+                run: (view) => {
+                  runQueryRef.current(view.state.doc.toString());
+                  return true;
+                },
+              },
+              {
+                key: "Mod-s",
+                run: (view) => {
+                  saveQueryRef.current(view.state.doc.toString());
+                  return true;
+                },
+              },
+              {
+                key: "Mod-l",
+                run: () => {
+                  loadQueryRef.current();
+                  return true;
+                },
+              },
+            ]),
+          ),
+          theme === "dark" ? oneDark : EditorView.baseTheme(),
+          sql(),
+          EditorView.updateListener.of((update) => {
+            if (!update.changes || !onChangeRef.current) return;
+
+            onChangeRef.current(update.state.doc.toString());
+          }),
+        ],
+      }),
+      parent: containerRef.current,
     });
 
     return () => {
       view.destroy();
     };
-  }, [initialDoc, onChange, theme]);
+  }, [initialDoc, theme]);
 
-  return <div className="h-full w-full" ref={editorRef}></div>;
+  return <div className="h-full w-full" ref={containerRef}></div>;
 };
 
 export default Editor;

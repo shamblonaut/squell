@@ -40,31 +40,34 @@ const Workspace = ({ config = defaultConfig }) => {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSaveClick = async () => {
-    openModal(
-      <ModalForm
-        title="Save Query"
-        fields={[
-          {
-            name: "name",
-            label: "Query Name",
-            type: "text",
-          },
-        ]}
-        submitText="Save"
-        onSubmit={(formData) => {
-          savedQueries.addRecord({
-            name: formData.get("name"),
-            code,
-            createdAt: new Date(),
-            modifiedAt: new Date(),
-          });
-        }}
-      />,
-    );
-  };
+  const saveQuery = useCallback(
+    async (code) => {
+      openModal(
+        <ModalForm
+          title="Save Query"
+          fields={[
+            {
+              name: "name",
+              label: "Query Name",
+              type: "text",
+            },
+          ]}
+          submitText="Save"
+          onSubmit={(formData) => {
+            savedQueries.addRecord({
+              name: formData.get("name"),
+              code,
+              createdAt: new Date(),
+              modifiedAt: new Date(),
+            });
+          }}
+        />,
+      );
+    },
+    [openModal, savedQueries],
+  );
 
-  const handleLoadClick = async () => {
+  const loadQuery = useCallback(async () => {
     const queries = await savedQueries.getAllRecords();
     openModal(
       <ModalForm
@@ -88,43 +91,49 @@ const Workspace = ({ config = defaultConfig }) => {
         }}
       />,
     );
-  };
+  }, [openModal, savedQueries]);
 
-  const handleRunClick = async () => {
-    if (processing || !dbData) return;
-    setProcessing(true);
+  const runQuery = useCallback(
+    async (query) => {
+      if (!dbData || processing) return;
+      setProcessing(true);
 
-    const dbManager = config.sandbox ? new SQLiteDBManager() : database.manager;
+      const dbManager = config.sandbox
+        ? new SQLiteDBManager()
+        : database.manager;
 
-    dbManager
-      .exec(code)
-      .then(({ result, time }) => {
-        setTables(result);
-        setExecTime(Math.round(time));
-        setError("");
+      dbManager
+        .exec(query)
+        .then(({ result, time }) => {
+          setTables(result);
+          setExecTime(Math.round(time));
+          setError("");
 
-        if (config.sandbox) return;
+          if (config.sandbox) return;
 
-        dbManager.getData().then((data) => {
-          dbManager.getTables().then((tables) => {
-            dbData.updateRecord(database.id, { data, tables });
-            setDatabase((prev) => ({ ...prev, tables }));
+          dbManager.getData().then((data) => {
+            dbManager.getTables().then((tables) => {
+              dbData.updateRecord(database.id, { data, tables });
+              setDatabase((prev) => ({ ...prev, tables }));
+            });
           });
-        });
-      })
-      .catch((error) => {
-        setTables(null);
-        setExecTime(null);
-        setError(error.message);
-      })
-      .finally(() => {
-        setProcessing(false);
+        })
+        .catch((error) => {
+          setTables(null);
+          setExecTime(null);
+          setError(error.message);
+        })
+        .finally(() => {
+          setProcessing(false);
 
-        if (config.sandbox) {
-          dbManager.close();
-        }
-      });
-  };
+          if (config.sandbox) {
+            dbManager.close();
+          }
+        });
+    },
+    [config.sandbox, database, processing, dbData, setDatabase],
+  );
+
   const handleCodeChange = useCallback((updatedCode) => {
     setCode(updatedCode);
   }, []);
@@ -140,25 +149,31 @@ const Workspace = ({ config = defaultConfig }) => {
               icon={<Save className="w-4" />}
               display="Save"
               className="bg-emerald-400 hover:bg-emerald-500"
-              onClick={handleSaveClick}
+              onClick={() => saveQuery(code)}
             />
             <ActionButton
               icon={<ArrowBigDownDash className="w-4" />}
               display="Load"
               className="bg-amber-400 hover:bg-amber-500"
-              onClick={handleLoadClick}
+              onClick={loadQuery}
             />
             <ActionButton
               icon={<Play className="w-4" />}
               display={processing ? "Running" : "Run"}
               className="bg-red-400 hover:bg-red-500 disabled:bg-red-600"
-              onClick={handleRunClick}
+              onClick={() => runQuery(code)}
               disabled={processing}
             />
           </>
         }
       >
-        <Editor initialDoc={initialDoc} onChange={handleCodeChange} />
+        <Editor
+          initialDoc={initialDoc}
+          onChange={handleCodeChange}
+          runQuery={runQuery}
+          saveQuery={saveQuery}
+          loadQuery={loadQuery}
+        />
       </Panel>
       <Panel
         title="Result"
