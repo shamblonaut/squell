@@ -7,6 +7,8 @@ import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { sql } from "@codemirror/lang-sql";
 
+import { getComputedTheme } from "@/utils/helpers";
+
 import { ThemeContext } from "@/contexts";
 
 const Editor = ({ initialDoc, onChange, runQuery, saveQuery, loadQuery }) => {
@@ -58,7 +60,7 @@ const Editor = ({ initialDoc, onChange, runQuery, saveQuery, loadQuery }) => {
               },
             ]),
           ),
-          theme === "dark" ? oneDark : EditorView.baseTheme(),
+          getComputedTheme() === "dark" ? oneDark : EditorView.baseTheme(),
           sql(),
           EditorView.updateListener.of((update) => {
             if (!update.changes || !onChangeRef.current) return;
