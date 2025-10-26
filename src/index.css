@@ -60,7 +60,8 @@ body {
   color: var(--color-invert-0);
 }
 
-body:has(dialog) {
+body:has(dialog#modal),
+body:has(aside) {
   overflow: hidden;
 }
 

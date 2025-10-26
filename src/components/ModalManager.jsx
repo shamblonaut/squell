@@ -31,6 +31,7 @@ const ModalManager = ({ open }) => {
     <dialog
       ref={dialogRef}
       closedby="any"
+      id="modal"
       className="m-auto rounded-xl border border-base-3 bg-base-1 p-4 text-invert-0 outline-none backdrop:bg-overlay backdrop:backdrop-blur-xs"
     >
       {modal}

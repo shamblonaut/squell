@@ -13,7 +13,7 @@ const SandboxPage = () => {
           </div>
         }
       />
-      <main className="flex-1 flex flex-col">
+      <main className="flex flex-1 flex-col">
         <SQLEngineSuspense>
           <Workspace config={{ sandbox: true }} />
         </SQLEngineSuspense>
