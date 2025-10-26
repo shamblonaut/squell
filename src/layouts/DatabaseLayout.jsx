@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
-import { Outlet, useLocation } from "react-router";
-import { PanelLeftOpen } from "lucide-react";
+import { Link, Outlet, useParams } from "react-router";
+import { LayoutDashboard } from "lucide-react";
 
-import {
-  AppDataProvider,
-  ModalProvider,
-  SQLEngineProvider,
-  ThemeProvider,
-} from "@/providers";
-import { Sidebar, ThemeSwitcher } from "@/components";
+import { SQLiteDBManager } from "@/lib/sqlite";
+
+import { useAppData, useSQLEngine } from "@/hooks";
+
+import { Sidebar } from "@/components";
+import { DatabaseHeader } from "@/components/headers";
 
 const DatabaseLayout = () => {
-  const location = useLocation();
+  const { dbId } = useParams();
 
+  const { dbData } = useAppData();
+  const { database, setDatabase, engineLoading, engineInitError } =
+    useSQLEngine();
+
+  const [databaseError, setDatabaseError] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     () => window.innerWidth >= 1024,
   );
@@ -44,42 +48,83 @@ const DatabaseLayout = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!dbData || engineLoading || engineInitError) {
+      return;
+    }
+
+    let manager;
+    dbData.getRecord(Number(dbId)).then((record) => {
+      if (!record) {
+        setDatabaseError("Database not found");
+        return;
+      }
+
+      manager = new SQLiteDBManager(record.data);
+      manager.getTables().then((tables) => {
+        setDatabase({
+          id: Number(dbId),
+          name: record.name,
+          tables,
+          manager,
+        });
+        setDatabaseError(null);
+      });
+    });
+
+    return () => {
+      if (manager) manager.close();
+      setDatabase(null);
+    };
+  }, [
+    dbId,
+    dbData,
+    engineLoading,
+    engineInitError,
+    setDatabase,
+    setDatabaseError,
+  ]);
+
+  if (databaseError) {
+    return (
+      <main className="flex flex-col h-svh items-center justify-center text-center px-4">
+        <h2 className="m-4 text-4xl font-bold">Database Error</h2>
+        <div className="m-8 text-center text-red">
+          <p className="text-3xl font-bold">Error:</p>
+          <p className="text-2xl font-medium">{databaseError}</p>
+        </div>
+        <Link
+          className="my-8 flex items-center gap-2 rounded-sm bg-red px-8 py-2 text-lg font-bold text-white"
+          to="/dashboard"
+        >
+          <LayoutDashboard /> Go to Dashboard
+        </Link>
+      </main>
+    );
+  } else if (!database) {
+    return (
+      <main className="flex flex-col h-svh items-center justify-center text-center px-4">
+        <div className="m-8 text-center">
+          <p className="text-2xl font-medium">Loading Database...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <ThemeProvider>
-      <ModalProvider>
-        <AppDataProvider>
-          <SQLEngineProvider>
-            <div className="flex min-h-svh">
-              <Sidebar
-                open={isSidebarOpen}
-                close={() => setIsSidebarOpen(false)}
-              />
-              <div className="flex flex-col flex-1">
-                <header className="grid grid-cols-[max-content_auto_max-content] h-16 border-b border-base-3 bg-base-2">
-                  {!isSidebarOpen && (
-                    <button
-                      onClick={() => setIsSidebarOpen(true)}
-                      className="px-4"
-                    >
-                      <PanelLeftOpen className="text-invert-1 w-5" />
-                    </button>
-                  )}
-                  <div className="flex justify-center items-center text-2xl font-medium col-start-2">
-                    {location.pathname.includes("/db/") && "Database Query"}
-                  </div>
-                  <div className="flex col-start-3 items-center px-4">
-                    <ThemeSwitcher />
-                  </div>
-                </header>
-                <main className="flex-1 flex flex-col">
-                  <Outlet />
-                </main>
-              </div>
-            </div>
-          </SQLEngineProvider>
-        </AppDataProvider>
-      </ModalProvider>
-    </ThemeProvider>
+    <div className="flex min-h-svh">
+      <Sidebar open={isSidebarOpen} close={() => setIsSidebarOpen(false)} />
+      <div className="flex flex-col flex-1">
+        <DatabaseHeader
+          title="Database Query"
+          isSidebarOpen={isSidebarOpen}
+          openSidebar={() => setIsSidebarOpen(true)}
+        />
+        <main className="flex-1 flex flex-col">
+          <Outlet context={{ database }} />
+        </main>
+      </div>
+    </div>
   );
 };
 

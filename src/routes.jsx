@@ -3,7 +3,7 @@ import {
   HomePage,
   SandboxPage,
   DashboardPage,
-  DatabasePage,
+  DatabaseQueryPage,
   ErrorPage,
   NotFoundPage,
 } from "@/pages";
@@ -36,7 +36,7 @@ const routes = [
     children: [
       {
         path: ":dbId",
-        element: <DatabasePage />,
+        element: <DatabaseQueryPage />,
       },
     ],
   },

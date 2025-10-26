@@ -10,7 +10,7 @@ import logo from "/logo.svg";
 const Sidebar = ({ open, close }) => {
   const { database } = useSQLEngine();
 
-  if (!open) return;
+  if (!open || !database) return;
   return (
     <div
       onClick={close}

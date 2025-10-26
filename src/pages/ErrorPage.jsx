@@ -10,7 +10,7 @@ const ErrorPage = () => {
       <div>
         <p className="italic">{error.fileName}</p>
       </div>
-      <div className=" m-4 text-2xl font-medium text-red">
+      <div className="m-4 text-2xl font-medium text-red">
         <p>{error.name}:</p>
         <p>{error.message}</p>
       </div>
