@@ -10,4 +10,5 @@ export { default as ModalForm } from "./ModalForm";
 export { default as Popup } from "./Popup";
 export { default as SQLEngineSuspense } from "./SQLEngineSuspense";
 export { default as DatabaseList } from "./DatabaseList";
+export { default as DatabaseItem } from "./DatabaseItem";
 export { default as DatabaseSwitcher } from "./DatabaseSwitcher";

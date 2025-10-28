@@ -6,6 +6,7 @@ const ModalForm = ({
   title,
   fields,
   submitText,
+  submitStyle,
   submitHidden = false,
   onSubmit,
 }) => {
@@ -26,10 +27,14 @@ const ModalForm = ({
       <div className="flex flex-col gap-8 text-lg">
         {fields.map((field, index) => (
           <div key={index} className="flex flex-col gap-4">
-            <label htmlFor={field.name} className="font-medium">
-              {field.label}
-            </label>
-            {field.type === "select" ? (
+            {field.label && (
+              <label htmlFor={field.name} className="font-medium">
+                {field.label}
+              </label>
+            )}
+            {field.type === "custom" ? (
+              field.content
+            ) : field.type === "select" ? (
               !field.options || field.options.length === 0 ? (
                 <p className="text-center">
                   {field.noOptionsMessage || "Options not found"}
@@ -52,6 +57,7 @@ const ModalForm = ({
                 name={field.name}
                 id={field.name}
                 type={field.type}
+                defaultValue={field.defaultValue || ""}
                 required
                 className="rounded-md border border-base-3 bg-base-2 px-3 py-1"
               />
@@ -70,7 +76,7 @@ const ModalForm = ({
         {!submitHidden && (
           <button
             type="submit"
-            className="flex-1 rounded-md border border-emerald-500 bg-emerald-400 py-2 font-bold text-slate-50"
+            className={`${submitStyle || ""} flex-1 rounded-md border py-2 font-bold text-slate-50`}
           >
             {submitText}
           </button>

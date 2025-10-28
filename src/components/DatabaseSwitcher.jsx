@@ -32,7 +32,7 @@ const DatabaseSwitcher = ({ currentDB }) => {
     <div className="relative m-2 flex flex-1 flex-col">
       <button
         onClick={() => setIsListOpen((prev) => !prev)}
-        className="hover:bg-base-4 flex items-center justify-between rounded-md bg-base-3 p-3"
+        className="flex items-center justify-between rounded-md bg-base-3 p-3 hover:bg-base-4"
       >
         <div className="flex gap-2">
           <Database className="w-4" />
@@ -47,6 +47,7 @@ const DatabaseSwitcher = ({ currentDB }) => {
         onClose={() => {
           if (isListOpen) setIsListOpen(false);
         }}
+        className="mt-1"
       >
         <ul className="flex flex-col gap-2">
           {filteredList.map((database) => (

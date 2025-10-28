@@ -19,7 +19,7 @@ const ThemeSwitcher = () => {
   };
 
   return (
-    <div className="flex flex-col relative">
+    <div className="relative flex flex-col">
       <button onClick={() => setIsPopupOpen((prev) => !prev)}>
         {getComputedTheme() === "light" ? (
           <Sun className="w-5" />
@@ -32,26 +32,27 @@ const ThemeSwitcher = () => {
         onClose={() => {
           if (isPopupOpen) setIsPopupOpen(false);
         }}
-        className="right-0 left-auto"
+        rightAligned={true}
+        className="mt-2"
       >
-        <div className="min-w-32 flex flex-col gap-2 font-medium">
+        <div className="flex min-w-32 flex-col gap-2 font-medium">
           <button
             onClick={() => switchTheme("light")}
-            className={`flex gap-2 text-start hover:bg-base-4 p-2 rounded-md border-base-4 ${theme === "light" ? "border" : ""}`}
+            className={`${theme === "light" ? "border" : ""} flex gap-2 rounded-md border-base-4 p-2 text-start hover:bg-base-4`}
           >
             <Sun className="w-4" />
             <p>Light</p>
           </button>
           <button
             onClick={() => switchTheme("dark")}
-            className={`flex gap-2 text-start hover:bg-base-4 p-2 rounded-md border-base-4 ${theme === "dark" ? "border" : ""}`}
+            className={`${theme === "dark" ? "border" : ""} flex gap-2 rounded-md border-base-4 p-2 text-start hover:bg-base-4`}
           >
             <Moon className="w-4" />
             <p>Dark</p>
           </button>
           <button
             onClick={() => switchTheme("system")}
-            className={`flex gap-2 text-start hover:bg-base-4 p-2 rounded-md border-base-4 ${theme === "system" ? "border" : ""}`}
+            className={`${theme === "system" ? "border" : ""} flex gap-2 rounded-md border-base-4 p-2 text-start hover:bg-base-4`}
           >
             <SunMoon className="w-4" />
             <p>System</p>

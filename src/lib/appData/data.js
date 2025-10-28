@@ -151,6 +151,23 @@ class AppData {
 
     return record;
   }
+
+  async removeRecord(key) {
+    if (!AppData.db) {
+      throw new Error(`DB not found`);
+    }
+
+    await this.#processRequest(
+      AppData.db
+        .transaction(this.type, "readwrite")
+        .objectStore(this.type)
+        .delete(key),
+    ).catch((error) => {
+      throw new Error(
+        `Could not remove record [ID: ${key}] in '${this.type}' in ${DB_NAME}: ${error.message}`,
+      );
+    });
+  }
 }
 
 export default AppData;

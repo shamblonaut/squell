@@ -53,6 +53,7 @@ const Workspace = ({ config = defaultConfig }) => {
             },
           ]}
           submitText="Save"
+          submitStyle="border-emerald-500 bg-emerald-400"
           onSubmit={(formData) => {
             savedQueries.addRecord({
               name: formData.get("name"),
@@ -85,6 +86,7 @@ const Workspace = ({ config = defaultConfig }) => {
           },
         ]}
         submitText="Load"
+        submitStyle="border-amber-500 bg-amber-400"
         submitHidden={queries.length === 0}
         onSubmit={(formData) => {
           const query = queries[formData.get("query-index")];
