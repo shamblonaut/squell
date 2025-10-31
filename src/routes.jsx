@@ -1,9 +1,10 @@
 import { DatabaseLayout, RootLayout } from "@/layouts";
 import {
   HomePage,
-  SandboxPage,
   DashboardPage,
+  SandboxPage,
   DatabaseQueryPage,
+  DatabaseTablePage,
   ErrorPage,
   NotFoundPage,
 } from "@/pages";
@@ -37,6 +38,10 @@ const routes = [
       {
         path: ":dbId",
         element: <DatabaseQueryPage />,
+      },
+      {
+        path: ":dbId/table/:tableName",
+        element: <DatabaseTablePage />,
       },
     ],
   },

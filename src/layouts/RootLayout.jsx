@@ -6,8 +6,8 @@ const RootLayout = () => {
   return (
     <div className="flex min-h-svh flex-col">
       <HeroHeader />
-      <main className="flex-1 flex flex-col mx-auto mt-12 mb-8 max-w-256">
-        <div className="flex-1 flex flex-col min-w-[min(64rem,_100vw)]">
+      <main className="mx-auto mt-12 mb-8 flex max-w-256 flex-1 flex-col">
+        <div className="flex min-w-[min(64rem,_100vw)] flex-1 flex-col">
           <Outlet />
         </div>
       </main>

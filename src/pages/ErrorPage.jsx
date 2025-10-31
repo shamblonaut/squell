@@ -5,7 +5,7 @@ const ErrorPage = () => {
   const error = useRouteError();
 
   return (
-    <main className="flex flex-col h-svh items-center justify-center text-center px-4">
+    <main className="flex h-svh flex-col items-center justify-center px-4 text-center">
       <h2 className="m-4 text-4xl font-bold">Route Error</h2>
       <div>
         <p className="italic">{error.fileName}</p>

@@ -60,9 +60,14 @@ body {
   color: var(--color-invert-0);
 }
 
-body:has(dialog#modal),
-body:has(aside) {
+body:has(dialog#modal) {
   overflow: hidden;
+}
+
+@media screen and (max-width: 1024px) {
+  body:has(aside) {
+    overflow: hidden;
+  }
 }
 
 #root {
@@ -71,6 +76,28 @@ body:has(aside) {
 
 button:not(.cursor-default) {
   cursor: pointer;
+}
+
+/* Rounded tables */
+table {
+  --border: 1px solid var(--color-base-4);
+
+  border: var(--border);
+  border-radius: 0.25rem;
+  border-spacing: 0;
+  border-collapse: separate;
+  overflow: hidden;
+}
+
+table th:not(:last-child),
+table td:not(:last-child) {
+  border-right: var(--border);
+}
+
+table thead tr > th,
+table tr:not(:last-child) > th,
+table tr:not(:last-child) > td {
+  border-bottom: var(--border);
 }
 
 /* CodeMirror Styles */

@@ -5,13 +5,13 @@ const NotFoundPage = () => {
   const location = useLocation();
 
   return (
-    <main className="flex flex-col h-svh items-center justify-center text-center px-4">
+    <main className="flex h-svh flex-col items-center justify-center px-4 text-center">
       <h2 className="m-4 text-4xl font-bold">Page Not Found</h2>
       <div className=" m-4 text-2xl font-medium text-red">
         <p>Error 404:</p>
         <p>
           The route{" "}
-          <code className="px-2 py-1 bg-base-2 text-invert-0 rounded-md text-xl">
+          <code className="rounded-md bg-base-2 px-2 py-1 text-xl text-invert-0">
             {location.pathname}
           </code>{" "}
           does not lead anywhere

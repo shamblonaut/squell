@@ -5,7 +5,7 @@ import logo from "/logo.svg";
 
 const HomePage = () => {
   return (
-    <div className="flex-1 flex flex-col items-center text-center">
+    <div className="flex flex-1 flex-col items-center text-center">
       <div>
         <p className="text-5xl">
           The <span className="font-bold text-red">SQL</span> Editor

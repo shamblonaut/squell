@@ -9,7 +9,7 @@ import {
   Editor,
   Panel,
   ActionButton,
-  ResultTable,
+  TableView,
   ModalForm,
 } from "@/components";
 
@@ -199,9 +199,9 @@ const Workspace = ({ config = defaultConfig }) => {
             <em className="text-xl">Executing query...</em>
           </div>
         ) : tables && tables.length !== 0 ? (
-          <div className="flex h-min min-w-min flex-col items-center gap-8 p-8">
+          <div className="flex h-min min-w-min flex-col items-center gap-8 p-4">
             {tables.map((table, index) => (
-              <ResultTable table={table} key={index} />
+              <TableView table={table} key={index} />
             ))}
           </div>
         ) : tables ? (

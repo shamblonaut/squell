@@ -10,17 +10,19 @@ import { Sidebar } from "@/components";
 import { DatabaseHeader } from "@/components/headers";
 
 const DatabaseLayout = () => {
-  const { dbId } = useParams();
+  const { dbId, tableName } = useParams();
 
   const { dbData } = useAppData();
   const { database, setDatabase, engineLoading, engineInitError } =
     useSQLEngine();
 
+  const [pageTitle, setPageTitle] = useState("Database");
   const [databaseError, setDatabaseError] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     () => window.innerWidth >= 1024,
   );
 
+  useEffect(() => setIsSidebarOpen(window.innerWidth >= 1024), [tableName]);
   useEffect(() => {
     let altPressed = false;
     const keyDownHandler = (event) => {
@@ -87,7 +89,7 @@ const DatabaseLayout = () => {
 
   if (databaseError) {
     return (
-      <main className="flex flex-col h-svh items-center justify-center text-center px-4">
+      <main className="flex h-svh flex-col items-center justify-center px-4 text-center">
         <h2 className="m-4 text-4xl font-bold">Database Error</h2>
         <div className="m-8 text-center text-red">
           <p className="text-3xl font-bold">Error:</p>
@@ -103,7 +105,7 @@ const DatabaseLayout = () => {
     );
   } else if (!database) {
     return (
-      <main className="flex flex-col h-svh items-center justify-center text-center px-4">
+      <main className="flex h-svh flex-col items-center justify-center px-4 text-center">
         <div className="m-8 text-center">
           <p className="text-2xl font-medium">Loading Database...</p>
         </div>
@@ -112,16 +114,16 @@ const DatabaseLayout = () => {
   }
 
   return (
-    <div className="flex min-h-svh">
+    <div className="flex min-h-svh w-svw">
       <Sidebar open={isSidebarOpen} close={() => setIsSidebarOpen(false)} />
-      <div className="flex flex-col flex-1">
+      <div className="flex w-full flex-1 flex-col">
         <DatabaseHeader
-          title="Database Query"
+          title={pageTitle}
           isSidebarOpen={isSidebarOpen}
           openSidebar={() => setIsSidebarOpen(true)}
         />
-        <main className="flex-1 flex flex-col">
-          <Outlet context={{ database }} />
+        <main className="flex flex-1 flex-col">
+          <Outlet context={{ database, setPageTitle }} />
         </main>
       </div>
     </div>

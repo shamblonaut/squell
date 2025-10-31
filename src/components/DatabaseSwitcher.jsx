@@ -17,22 +17,11 @@ const DatabaseSwitcher = ({ currentDB }) => {
 
   if (!currentDB) return;
 
-  if (filteredList.length === 0) {
-    return (
-      <div className="m-2 flex flex-1 items-center justify-between gap-2 rounded-md bg-base-3 p-3">
-        <Database className="w-4" />
-        <p className="line-clamp-1 flex-1 text-start font-bold text-ellipsis">
-          {currentDB.name}
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="relative m-2 flex flex-1 flex-col">
-      <button
-        onClick={() => setIsListOpen((prev) => !prev)}
-        className="flex items-center justify-between rounded-md bg-base-3 p-3 hover:bg-base-4"
+    <div className="relative m-2 flex flex-1 gap-[1px]">
+      <Link
+        to={`/db/${currentDB.id}`}
+        className={`${filteredList.length > 0 ? "rounded-r-none" : "rounded-r-md"} flex flex-1 items-center justify-between rounded-l-md bg-base-3 p-3 hover:bg-base-4`}
       >
         <div className="flex gap-2">
           <Database className="w-4" />
@@ -40,8 +29,15 @@ const DatabaseSwitcher = ({ currentDB }) => {
             {currentDB.name}
           </p>
         </div>
-        <ChevronsUpDown className="w-4" />
-      </button>
+      </Link>
+      {filteredList.length > 0 && (
+        <button
+          onClick={() => setIsListOpen((prev) => !prev)}
+          className="flex items-center justify-between rounded-l-none rounded-r-md bg-base-3 p-3 hover:bg-base-4"
+        >
+          <ChevronsUpDown className="w-4" />
+        </button>
+      )}
       <Popup
         open={isListOpen}
         onClose={() => {

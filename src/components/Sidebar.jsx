@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import { PanelLeftClose, Table } from "lucide-react";
 
 import { useSQLEngine } from "@/hooks";
@@ -8,6 +8,8 @@ import { DatabaseSwitcher } from "@/components";
 import logo from "/logo.svg";
 
 const Sidebar = ({ open, close }) => {
+  const { tableName } = useParams();
+
   const { database } = useSQLEngine();
 
   if (!open || !database) return;
@@ -20,7 +22,7 @@ const Sidebar = ({ open, close }) => {
         onClick={(event) => event.stopPropagation()}
         className="h-[90svh] w-[90vw] rounded-xl border border-base-3 bg-base-2 lg:h-full lg:w-full lg:rounded-none lg:border-0 lg:border-r lg:border-base-3"
       >
-        <header className="flex h-16 justify-between border-b border-base-3 p-4">
+        <div className="flex h-16 justify-between border-b border-base-3 p-4">
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="Squell Logo" className="h-auto w-8" />
             <h1 className="text-3xl font-bold text-purple">SQUELL</h1>
@@ -28,9 +30,9 @@ const Sidebar = ({ open, close }) => {
           <button onClick={close}>
             <PanelLeftClose className="w-5 text-invert-1" />
           </button>
-        </header>
+        </div>
         {database && (
-          <div className="flex h-16 justify-center items-center border-b border-base-3">
+          <div className="flex h-16 items-center justify-center border-b border-base-3">
             <DatabaseSwitcher currentDB={database} />
           </div>
         )}
@@ -39,13 +41,16 @@ const Sidebar = ({ open, close }) => {
         </div>
         <div>
           {database?.tables && (
-            <ul className="px-2 py-4">
+            <ul className="flex flex-col gap-1 px-2 py-4">
               {database.tables.map((table, index) => (
                 <li key={index}>
-                  <div className="flex w-full gap-2 rounded-md p-2">
+                  <Link
+                    to={`/db/${database.id}/table/${table[1]}`}
+                    className={`${table[1] === tableName ? "bg-base-3" : ""} flex w-full gap-2 rounded-sm p-2 hover:bg-base-3`}
+                  >
                     <Table className="w-4 text-invert-1" />
                     <p>{table[1]}</p>
-                  </div>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -4,14 +4,14 @@ import { ThemeSwitcher } from "@/components";
 
 const DatabaseHeader = ({ title, isSidebarOpen, openSidebar }) => {
   return (
-    <header className="relative flex justify-center items-center h-16 border-b border-base-3 bg-base-2">
+    <header className="relative flex h-16 items-center justify-center border-b border-base-3 bg-base-2">
       {!isSidebarOpen && (
-        <button onClick={openSidebar} className="px-4 absolute left-0">
-          <PanelLeftOpen className="text-invert-1 w-5" />
+        <button onClick={openSidebar} className="absolute left-0 px-4">
+          <PanelLeftOpen className="w-5 text-invert-1" />
         </button>
       )}
       <div className="text-2xl font-medium">{title}</div>
-      <div className="flex items-center px-4 absolute right-0">
+      <div className="absolute right-0 flex items-center px-4">
         <ThemeSwitcher />
       </div>
     </header>
