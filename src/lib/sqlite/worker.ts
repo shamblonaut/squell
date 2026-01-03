@@ -1,10 +1,13 @@
 import initSqlJs from "sql.js";
+import type { Database, SqlJsStatic } from "sql.js";
 
-let SQL;
-const dbs = new Map();
+import type { SQLiteWorkerCommand } from "./types";
 
-onmessage = async (event) => {
-  const { id, type, dbId, payload } = event.data;
+let SQL: SqlJsStatic;
+const dbs = new Map<string, Database>();
+
+onmessage = async (event: MessageEvent<SQLiteWorkerCommand>): Promise<void> => {
+  const { id, type, dbId } = event.data;
 
   if (type !== "init" && !SQL) {
     throw new Error("SQL Worker not initialized properly");
@@ -17,7 +20,7 @@ onmessage = async (event) => {
       case "init": {
         if (!SQL) {
           SQL = await initSqlJs({
-            locateFile: (file) => `/${file}`,
+            locateFile: (file: string): string => `/${file}`,
           });
         }
 
@@ -25,7 +28,7 @@ onmessage = async (event) => {
         break;
       }
       case "open": {
-        const { data } = payload;
+        const { data } = event.data.payload;
 
         // Open a fresh DB or a from a previous state if provided
         const db = data ? new SQL.Database(data) : new SQL.Database();
@@ -52,7 +55,7 @@ onmessage = async (event) => {
           throw new Error("DB not found");
         }
 
-        const { sql } = payload;
+        const { sql } = event.data.payload;
 
         const initialTime = performance.now();
         const result = db.exec(sql);
@@ -79,6 +82,6 @@ onmessage = async (event) => {
       }
     }
   } catch (error) {
-    postMessage({ id, error });
+    postMessage({ id, success: false, error });
   }
 };
