@@ -1,25 +1,30 @@
-import { DB_NAME, AppDataType, migrations } from "./config";
+import { AppDataType, DB_NAME, migrations } from "./config";
+import type { NewRecordOf, RecordOf } from "./types";
 
-class AppData {
-  static async openDB() {
+class AppData<T extends AppDataType> {
+  // Static properties
+  static db: IDBDatabase | null = null;
+
+  static async openDB(): Promise<string> {
     if (AppData.db) {
-      return new Promise((resolve) =>
-        resolve({ success: true, message: "DB already opened" }),
-      );
+      return new Promise((resolve) => resolve("DB already opened"));
     }
 
     const dbVersion = migrations.length;
-    const request = indexedDB.open(DB_NAME, dbVersion);
 
+    const request = indexedDB.open(DB_NAME, dbVersion);
     return new Promise((resolve, reject) => {
-      request.onerror = (event) => {
-        reject("Could not open DB: " + event.target.error.message);
+      request.onsuccess = () => {
+        AppData.db = request.result;
+
+        resolve("DB opened successfully");
       };
 
-      request.onsuccess = (event) => {
-        AppData.db = event.target.result;
-
-        resolve({ success: true, message: "DB opened successfully" });
+      request.onerror = () => {
+        reject(
+          "Could not open DB: " +
+            (request.error?.message ?? "Unknown request error"),
+        );
       };
 
       request.onblocked = () => {
@@ -27,8 +32,21 @@ class AppData {
         reject("Active instances of DB with older version found");
       };
 
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
+      request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
+        const db = request.result;
+
+        // If database is being deleted, abort the open request
+        if (event.newVersion === null) {
+          try {
+            db.close();
+          } catch (error) {
+            console.warn("Failed to close DB during deletion cleanup:", error);
+          }
+
+          reject("Could not open DB: Database deletion in progress");
+          return;
+        }
+
         for (let i = event.oldVersion; i < event.newVersion; i++) {
           const migration = migrations[i];
           migration(db);
@@ -37,38 +55,21 @@ class AppData {
     });
   }
 
-  static closeDB() {
+  static closeDB(): void {
     if (!AppData.db) return;
 
     AppData.db.close();
     AppData.db = null;
   }
 
-  async #processRequest(request) {
-    if (!AppData.db.objectStoreNames.contains(this.type)) {
-      throw new Error(`Object store ${this.type} not found`);
-    }
+  // Instance properties
+  type: T;
 
-    return new Promise((resolve, reject) => {
-      request.onerror = (event) => {
-        reject(event.target.error);
-      };
-
-      request.onsuccess = (event) => {
-        resolve(event.target.result);
-      };
-    });
-  }
-
-  constructor(type) {
+  constructor(type: T) {
     this.type = type;
-
-    if (!Object.values(AppDataType).includes(type)) {
-      throw new Error("Invalid ApplicationData type");
-    }
   }
 
-  async getRecord(key) {
+  async getRecord(key: number): Promise<RecordOf<T>> {
     if (!AppData.db) {
       throw new Error("DB not found");
     }
@@ -77,7 +78,7 @@ class AppData {
       AppData.db
         .transaction(this.type, "readonly")
         .objectStore(this.type)
-        .get(key),
+        .get(key) as IDBRequest<RecordOf<T>>,
     ).catch((error) => {
       throw new Error(
         `Could not get record with key '${key}' from store '${this.type}' in ${DB_NAME}: ${error.message}`,
@@ -86,7 +87,7 @@ class AppData {
     return record;
   }
 
-  async getAllRecords() {
+  async getAllRecords(): Promise<RecordOf<T>[]> {
     if (!AppData.db) {
       throw new Error("DB not found");
     }
@@ -95,7 +96,7 @@ class AppData {
       AppData.db
         .transaction(this.type, "readonly")
         .objectStore(this.type)
-        .getAll(),
+        .getAll() as IDBRequest<RecordOf<T>[]>,
     ).catch((error) => {
       throw new Error(
         `Could not get records from store '${this.type}' in ${DB_NAME}: ${error.message}`,
@@ -104,16 +105,16 @@ class AppData {
     return record;
   }
 
-  async addRecord(record) {
+  async addRecord(record: NewRecordOf<T>): Promise<number> {
     if (!AppData.db) {
-      throw new Error(`DB not found`);
+      throw new Error("DB not found");
     }
 
     const key = await this.#processRequest(
       AppData.db
         .transaction(this.type, "readwrite")
         .objectStore(this.type)
-        .add(record),
+        .add(record) as IDBRequest<number>,
     ).catch((error) => {
       throw new Error(
         `Could not add record to '${this.type}' in ${DB_NAME}: ${error.message}`,
@@ -122,20 +123,26 @@ class AppData {
     return key;
   }
 
-  async updateRecord(key, updates) {
+  async updateRecord(
+    key: number,
+    updates: Partial<NewRecordOf<T>>,
+  ): Promise<RecordOf<T>> {
     if (!AppData.db) {
-      throw new Error(`DB not found`);
+      throw new Error("DB not found");
     }
 
     const record = await this.getRecord(key);
-    for (let [key, value] of Object.entries(updates)) {
+    for (const key of Object.keys(updates) as (keyof NewRecordOf<T>)[]) {
       if (key === "id") {
         throw new Error(
           `Invalid update to id property in '${this.type}' in ${DB_NAME}`,
         );
       }
 
-      record[key] = value;
+      const value = updates[key];
+      if (value !== undefined) {
+        record[key] = value;
+      }
     }
 
     await this.#processRequest(
@@ -152,9 +159,9 @@ class AppData {
     return record;
   }
 
-  async removeRecord(key) {
+  async removeRecord(key: number): Promise<void> {
     if (!AppData.db) {
-      throw new Error(`DB not found`);
+      throw new Error("DB not found");
     }
 
     await this.#processRequest(
@@ -166,6 +173,21 @@ class AppData {
       throw new Error(
         `Could not remove record [ID: ${key}] in '${this.type}' in ${DB_NAME}: ${error.message}`,
       );
+    });
+  }
+
+  async #processRequest<R>(request: IDBRequest<R>): Promise<R> {
+    if (!AppData.db) {
+      throw new Error("DB not found");
+    }
+
+    if (!AppData.db.objectStoreNames.contains(this.type)) {
+      throw new Error(`Object store ${this.type} not found`);
+    }
+
+    return new Promise<R>((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
     });
   }
 }
