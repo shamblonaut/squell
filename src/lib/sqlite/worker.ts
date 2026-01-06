@@ -1,5 +1,5 @@
-import initSqlJs from "sql.js";
 import type { Database, SqlJsStatic } from "sql.js";
+import initSqlJs from "sql.js";
 
 import type { SQLiteWorkerCommand } from "./types";
 

@@ -1,6 +1,4 @@
-import { RouterProvider, createBrowserRouter } from "react-router";
-
-import routes from "./routes";
+import { createBrowserRouter, RouterProvider } from "react-router";
 
 import {
   AppDataProvider,
@@ -8,6 +6,8 @@ import {
   SQLEngineProvider,
   ThemeProvider,
 } from "@/providers";
+
+import routes from "./routes";
 
 const App = () => {
   return (

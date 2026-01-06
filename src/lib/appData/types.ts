@@ -1,4 +1,5 @@
 import type { SqlValue } from "sql.js";
+
 import type { AppDataType } from "./config";
 
 export interface SavedQueryRecord {

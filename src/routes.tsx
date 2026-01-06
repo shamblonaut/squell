@@ -1,12 +1,12 @@
 import { DatabaseLayout, RootLayout } from "@/layouts";
 import {
-  HomePage,
   DashboardPage,
-  SandboxPage,
   DatabaseQueryPage,
   DatabaseTablePage,
   ErrorPage,
+  HomePage,
   NotFoundPage,
+  SandboxPage,
 } from "@/pages";
 
 const routes = [
