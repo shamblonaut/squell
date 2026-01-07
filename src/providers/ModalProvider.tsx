@@ -1,14 +1,13 @@
-import { useCallback, useState } from "react";
-
-import { ModalContext } from "@/contexts";
+import React, { useCallback, useState } from "react";
 
 import { ModalManager } from "@/components";
+import { ModalContext } from "@/contexts";
 
-const ModalProvider = ({ children }) => {
+const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modal, setModal] = useState(null);
+  const [modal, setModal] = useState<React.ReactElement | null>(null);
 
-  const openModal = useCallback((modal) => {
+  const openModal = useCallback((modal: React.ReactElement) => {
     setModal(modal);
     setIsModalOpen(true);
   }, []);

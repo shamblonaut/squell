@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
+import type { AppDataContextValue } from "@/contexts";
+import { AppDataContext } from "@/contexts";
 import { AppData, AppDataType } from "@/lib/appData";
 
-import { AppDataContext } from "@/contexts";
-
-const AppDataProvider = ({ children }) => {
-  const [appData, setAppData] = useState({
+const AppDataProvider = ({ children }: { children: React.ReactNode }) => {
+  const [appData, setAppData] = useState<AppDataContextValue>({
     savedQueries: null,
     dbData: null,
   });
