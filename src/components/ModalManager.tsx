@@ -1,12 +1,16 @@
-import { useContext, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
-import { ModalContext } from "@/contexts";
+import { useModal } from "@/hooks";
 
-const ModalManager = ({ open }) => {
-  const dialogRef = useRef();
+interface ModalManagerProps {
+  open: boolean;
+}
 
-  const { modal, closeModal } = useContext(ModalContext);
+const ModalManager = ({ open }: ModalManagerProps) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const { modal, closeModal } = useModal();
 
   useEffect(() => {
     const dialog = dialogRef.current;

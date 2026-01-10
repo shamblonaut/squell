@@ -1,31 +1,35 @@
-import { useEffect, useState } from "react";
-import { Link, Outlet, useParams } from "react-router";
 import { LayoutDashboard } from "lucide-react";
-
-import { SQLiteDBManager } from "@/lib/sqlite";
-
-import { useAppData, useSQLEngine } from "@/hooks";
+import React, { useEffect, useState } from "react";
+import { Link, Outlet, useParams } from "react-router";
 
 import { Sidebar } from "@/components";
 import { DatabaseHeader } from "@/components/headers";
+import type { SQLEngineDatabase } from "@/contexts";
+import { useAppData, useSQLEngine } from "@/hooks";
+import { SQLiteDBManager } from "@/lib/sqlite";
+
+export interface DatabaseLayoutContext {
+  database: SQLEngineDatabase;
+  setPageTitle: React.Dispatch<React.SetStateAction<string>>;
+}
 
 const DatabaseLayout = () => {
-  const { dbId, tableName } = useParams();
+  const { dbId } = useParams();
 
   const { dbData } = useAppData();
   const { database, setDatabase, engineLoading, engineInitError } =
     useSQLEngine();
 
   const [pageTitle, setPageTitle] = useState("Database");
-  const [databaseError, setDatabaseError] = useState(null);
+  const [databaseError, setDatabaseError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     () => window.innerWidth >= 1024,
   );
 
-  useEffect(() => setIsSidebarOpen(window.innerWidth >= 1024), [tableName]);
+  // TODO: Handle keybinds in a better way
   useEffect(() => {
     let altPressed = false;
-    const keyDownHandler = (event) => {
+    const keyDownHandler = (event: KeyboardEvent) => {
       if (event.key === "Alt") {
         altPressed = true;
       }
@@ -35,7 +39,7 @@ const DatabaseLayout = () => {
       }
     };
 
-    const keyUpHandler = (event) => {
+    const keyUpHandler = (event: KeyboardEvent) => {
       if (event.key === "Alt") {
         altPressed = false;
       }
@@ -55,7 +59,7 @@ const DatabaseLayout = () => {
       return;
     }
 
-    let manager;
+    let manager: SQLiteDBManager;
     dbData.getRecord(Number(dbId)).then((record) => {
       if (!record) {
         setDatabaseError("Database not found");

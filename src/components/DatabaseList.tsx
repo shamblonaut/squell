@@ -1,9 +1,9 @@
 import { Plus } from "lucide-react";
 
-import { SQLiteDBManager } from "@/lib/sqlite";
-
-import { useAppData, useDatabaseList, useModal } from "@/hooks";
 import { DatabaseItem, ModalForm } from "@/components";
+import type { SQLEngineDatabase } from "@/contexts";
+import { useAppData, useDatabaseList, useModal } from "@/hooks";
+import { SQLiteDBManager } from "@/lib/sqlite";
 
 const DatabaseList = () => {
   const { dbData } = useAppData();
@@ -23,22 +23,28 @@ const DatabaseList = () => {
         ]}
         submitText="Create"
         submitStyle="border-emerald-500 bg-emerald-400"
-        onSubmit={async (formData) => {
+        onSubmit={async (formData: FormData) => {
           const manager = new SQLiteDBManager();
 
-          const name = formData.get("name");
+          const name = formData.get("name")!.toString();
           const data = await manager.getData();
           const tables = await manager.getTables();
-          const id = await dbData.addRecord({ name, data, tables });
+          const id = await dbData!.addRecord({ name, data, tables });
 
-          setDatabaseList((prevList) => [...prevList, { id, name, tables }]);
+          const newDatabase: SQLEngineDatabase = {
+            id,
+            name,
+            tables,
+            manager: null,
+          };
+          setDatabaseList((prevList) => [...prevList, newDatabase]);
         }}
       />,
     );
   };
 
   return (
-    <ul className="mx-8 grid grid-cols-[repeat(auto-fill,_minmax(min(24rem,_80vw),_1fr))] gap-4">
+    <ul className="mx-8 grid grid-cols-[repeat(auto-fill,minmax(min(24rem,80vw),1fr))] gap-4">
       {databaseList.map((database) => (
         <li key={database.id}>
           <DatabaseItem database={database} setDatabaseList={setDatabaseList} />

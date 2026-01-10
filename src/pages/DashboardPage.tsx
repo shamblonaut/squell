@@ -1,4 +1,4 @@
-import { SQLEngineSuspense, DatabaseList } from "@/components";
+import { DatabaseList, SQLEngineSuspense } from "@/components";
 
 const DashboardPage = () => {
   return (

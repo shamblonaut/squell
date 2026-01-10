@@ -1,4 +1,10 @@
-const TableView = ({ table }) => {
+import type { QueryExecResult } from "sql.js";
+
+interface TableViewProps {
+  table: QueryExecResult;
+}
+
+const TableView = ({ table }: TableViewProps) => {
   if (!table) {
     return (
       <p className="my-16 text-center text-2xl font-medium text-red">

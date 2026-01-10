@@ -1,34 +1,38 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router";
+import type { QueryExecResult } from "sql.js";
 
 import { SQLEngineSuspense, TableView } from "@/components";
+import type { DatabaseLayoutContext } from "@/layouts/DatabaseLayout";
 
 const DatabaseTablePage = () => {
-  const { database, setPageTitle } = useOutletContext();
+  const { database, setPageTitle } = useOutletContext<DatabaseLayoutContext>();
   const { tableName } = useParams();
 
-  const [table, setTable] = useState();
+  const [table, setTable] = useState<QueryExecResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setPageTitle("Table View");
   }, [setPageTitle]);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-    setTable(null);
+    (async () => {
+      setLoading(true);
+      setError(null);
+      setTable(null);
 
-    database.manager
-      .exec(`SELECT * FROM ${tableName}`)
-      .then(({ result }) => {
-        setTable(result[0]);
-      })
-      .catch((error) => setError(error.message))
-      .finally(() => {
-        setLoading(false);
-      });
+      database
+        .manager!.exec(`SELECT * FROM ${tableName}`)
+        .then(({ result }) => {
+          setTable(result[0]);
+        })
+        .catch((error) => setError(error.message))
+        .finally(() => {
+          setLoading(false);
+        });
+    })();
   }, [database, tableName]);
 
   if (loading) {

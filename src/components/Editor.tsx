@@ -1,18 +1,30 @@
-import { useContext, useEffect, useRef } from "react";
-
-import { basicSetup } from "codemirror";
-import { EditorState, Prec } from "@codemirror/state";
-import { EditorView, keymap } from "@codemirror/view";
 import { defaultKeymap, indentWithTab } from "@codemirror/commands";
-import { oneDark } from "@codemirror/theme-one-dark";
 import { sql } from "@codemirror/lang-sql";
+import { EditorState, Prec } from "@codemirror/state";
+import { oneDark } from "@codemirror/theme-one-dark";
+import { EditorView, keymap } from "@codemirror/view";
+import { basicSetup } from "codemirror";
+import { useEffect, useRef } from "react";
 
+import { useTheme } from "@/hooks";
 import { getComputedTheme } from "@/utils/helpers";
 
-import { ThemeContext } from "@/contexts";
+interface EditorProps {
+  initialDoc: string;
+  onChange: (updatedCode: string) => void;
+  runQuery: (query: string) => void;
+  saveQuery: (code: string) => void;
+  loadQuery: () => void;
+}
 
-const Editor = ({ initialDoc, onChange, runQuery, saveQuery, loadQuery }) => {
-  const { theme } = useContext(ThemeContext);
+const Editor = ({
+  initialDoc,
+  onChange,
+  runQuery,
+  saveQuery,
+  loadQuery,
+}: EditorProps) => {
+  const { theme } = useTheme();
 
   const containerRef = useRef(null);
 
@@ -29,12 +41,15 @@ const Editor = ({ initialDoc, onChange, runQuery, saveQuery, loadQuery }) => {
   }, [initialDoc, onChange, runQuery, saveQuery, loadQuery]);
 
   useEffect(() => {
+    if (!containerRef.current) return;
+
     const view = new EditorView({
       state: EditorState.create({
         doc: initialDoc,
         extensions: [
           basicSetup,
-          keymap.of([defaultKeymap, indentWithTab]),
+          keymap.of(defaultKeymap),
+          keymap.of([indentWithTab]),
           Prec.high(
             keymap.of([
               {
@@ -60,7 +75,7 @@ const Editor = ({ initialDoc, onChange, runQuery, saveQuery, loadQuery }) => {
               },
             ]),
           ),
-          getComputedTheme() === "dark" ? oneDark : EditorView.baseTheme(),
+          getComputedTheme() === "dark" ? oneDark : EditorView.baseTheme({}),
           sql(),
           EditorView.updateListener.of((update) => {
             if (!update.changes || !onChangeRef.current) return;

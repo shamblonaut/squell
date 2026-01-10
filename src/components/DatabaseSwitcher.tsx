@@ -1,11 +1,16 @@
+import { ChevronsUpDown, Database } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import { ChevronsUpDown, Database } from "lucide-react";
 
-import { useDatabaseList } from "@/hooks";
 import { Popup } from "@/components";
+import type { SQLEngineDatabase } from "@/contexts";
+import { useDatabaseList } from "@/hooks";
 
-const DatabaseSwitcher = ({ currentDB }) => {
+interface DatabaseSwitcherProps {
+  currentDB: SQLEngineDatabase;
+}
+
+const DatabaseSwitcher = ({ currentDB }: DatabaseSwitcherProps) => {
   const { databaseList } = useDatabaseList();
 
   const [isListOpen, setIsListOpen] = useState(false);
@@ -18,7 +23,7 @@ const DatabaseSwitcher = ({ currentDB }) => {
   if (!currentDB) return;
 
   return (
-    <div className="relative m-2 flex flex-1 gap-[1px]">
+    <div className="relative m-2 flex flex-1 gap-px">
       <Link
         to={`/db/${currentDB.id}`}
         className={`${filteredList.length > 0 ? "rounded-r-none" : "rounded-r-md"} flex flex-1 items-center justify-between rounded-l-md bg-base-3 p-3 hover:bg-base-4`}

@@ -1,22 +1,32 @@
-import { Link, useParams } from "react-router";
 import { PanelLeftClose, Table } from "lucide-react";
-
-import { useSQLEngine } from "@/hooks";
-
-import { DatabaseSwitcher } from "@/components";
+import { Link, useParams } from "react-router";
 
 import logo from "/logo.svg";
+import { DatabaseSwitcher } from "@/components";
+import { useSQLEngine } from "@/hooks";
 
-const Sidebar = ({ open, close }) => {
+interface SidebarProps {
+  open: boolean;
+  close: () => void;
+}
+
+const Sidebar = ({ open, close }: SidebarProps) => {
   const { tableName } = useParams();
 
   const { database } = useSQLEngine();
+
+  // TODO: There is a slight flicker on small screens when closing
+  const handleTableLinkClick = () => {
+    if (window.innerWidth < 1024) {
+      close();
+    }
+  };
 
   if (!open || !database) return;
   return (
     <div
       onClick={close}
-      className="fixed inset-0 z-1 flex items-center justify-center bg-overlay backdrop-blur-xs lg:relative lg:w-[max(16vw,_16rem)]"
+      className="fixed inset-0 z-1 flex items-center justify-center bg-overlay backdrop-blur-xs lg:relative lg:w-[max(16vw,16rem)]"
     >
       <aside
         onClick={(event) => event.stopPropagation()}
@@ -46,6 +56,7 @@ const Sidebar = ({ open, close }) => {
                 <li key={index}>
                   <Link
                     to={`/db/${database.id}/table/${table[1]}`}
+                    onClick={handleTableLinkClick}
                     className={`${table[1] === tableName ? "bg-base-3" : ""} flex w-full gap-2 rounded-sm p-2 hover:bg-base-3`}
                   >
                     <Table className="w-4 text-invert-1" />

@@ -1,5 +1,5 @@
-import { Link } from "react-router";
 import { Box, LayoutDashboard } from "lucide-react";
+import { Link } from "react-router";
 
 import logo from "/logo.svg";
 
@@ -13,7 +13,7 @@ const HomePage = () => {
         <p className="py-6 text-4xl font-medium text-purple">of your dreams</p>
       </div>
       <div className="flex flex-1 flex-col justify-center">
-        <img className="h-[min(48vw,_32svh)]" src={logo} alt="Squell Logo" />
+        <img className="h-[min(48vw,32svh)]" src={logo} alt="Squell Logo" />
       </div>
       <div className="my-8 flex flex-col gap-4 lg:flex-row">
         <Link

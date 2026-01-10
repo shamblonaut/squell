@@ -1,6 +1,6 @@
 import { Box } from "lucide-react";
 
-import { Workspace, SQLEngineSuspense } from "@/components";
+import { SQLEngineSuspense, Workspace } from "@/components";
 import { PageHeader } from "@/components/headers";
 
 const SandboxPage = () => {

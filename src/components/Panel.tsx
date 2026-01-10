@@ -1,4 +1,11 @@
-const Panel = ({ title, barItems, children, className }) => {
+interface PanelProps {
+  title: string;
+  barItems: React.ReactElement;
+  children: React.ReactElement;
+  className?: string;
+}
+
+const Panel = ({ title, barItems, children, className }: PanelProps) => {
   return (
     <div className={`${className ? className + " " : ""}flex flex-col`}>
       <div className="flex h-16 w-full items-center justify-between border-b border-base-3 bg-base-2 px-4">

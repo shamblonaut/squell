@@ -1,10 +1,13 @@
 import { Link } from "react-router";
 
+import logo from "/logo.svg";
 import { ThemeSwitcher } from "@/components";
 
-import logo from "/logo.svg";
+interface PageHeaderProps {
+  title?: React.ReactNode;
+}
 
-const PageHeader = ({ title }) => {
+const PageHeader = ({ title }: PageHeaderProps) => {
   return (
     <header className="flex h-16 items-center justify-between border-b border-base-3 bg-base-2 p-4">
       <div className="flex items-center">

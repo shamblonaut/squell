@@ -1,5 +1,5 @@
-import { useLocation, Link } from "react-router";
 import { Home } from "lucide-react";
+import { Link, useLocation } from "react-router";
 
 const NotFoundPage = () => {
   const location = useLocation();

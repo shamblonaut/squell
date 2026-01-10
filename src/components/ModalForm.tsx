@@ -1,16 +1,54 @@
-import { useContext, useRef } from "react";
+import React, { useRef } from "react";
 
-import { ModalContext } from "@/contexts";
+import { useModal } from "@/hooks";
+
+interface BaseInputField {
+  type: string;
+  name: string;
+  label?: string;
+}
+
+interface TextInputField extends BaseInputField {
+  type: "text";
+  label: string;
+  defaultValue?: string;
+}
+
+interface SelectInputField extends BaseInputField {
+  type: "select";
+  label: string;
+  options: {
+    value: number;
+    text: string;
+  }[];
+  noOptionsMessage: string;
+}
+
+interface CustomInputField extends BaseInputField {
+  type: "custom";
+  content: React.ReactElement;
+}
+
+type ModalInputField = TextInputField | SelectInputField | CustomInputField;
+
+interface ModalFormProps {
+  title: string;
+  fields: ModalInputField[];
+  submitText: string;
+  submitStyle: string;
+  onSubmit: (formData: FormData) => void;
+  submitHidden?: boolean;
+}
 
 const ModalForm = ({
   title,
   fields,
   submitText,
   submitStyle,
-  submitHidden = false,
   onSubmit,
-}) => {
-  const { closeModal } = useContext(ModalContext);
+  submitHidden = false,
+}: ModalFormProps) => {
+  const { closeModal } = useModal();
 
   const formRef = useRef(null);
   return (
@@ -18,10 +56,12 @@ const ModalForm = ({
       ref={formRef}
       onSubmit={(event) => {
         event.preventDefault();
+        if (!formRef.current) return;
+
         onSubmit(new FormData(formRef.current));
         closeModal();
       }}
-      className="flex min-w-[min(20rem,_80vw)] flex-col gap-8"
+      className="flex min-w-[min(20rem,80vw)] flex-col gap-8"
     >
       <h1 className="text-center text-2xl font-bold">{title}</h1>
       <div className="flex flex-col gap-8 text-lg">

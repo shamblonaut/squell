@@ -1,11 +1,17 @@
+import { Database, EllipsisVertical, SquarePen, Trash } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-import { Database, EllipsisVertical, SquarePen, Trash } from "lucide-react";
 
-import { useAppData, useModal } from "@/hooks";
 import { ModalForm, Popup } from "@/components";
+import type { SQLEngineDatabase } from "@/contexts";
+import { useAppData, useModal } from "@/hooks";
 
-const DatabaseItem = ({ database, setDatabaseList }) => {
+interface DatabaseItemProps {
+  database: SQLEngineDatabase;
+  setDatabaseList: React.Dispatch<React.SetStateAction<SQLEngineDatabase[]>>;
+}
+
+const DatabaseItem = ({ database, setDatabaseList }: DatabaseItemProps) => {
   const { openModal } = useModal();
   const { dbData } = useAppData();
 
@@ -25,10 +31,10 @@ const DatabaseItem = ({ database, setDatabaseList }) => {
         ]}
         submitText="Save"
         submitStyle="border-emerald-500 bg-emerald-400"
-        onSubmit={async (formData) => {
-          const name = formData.get("name");
-          await dbData.updateRecord(database.id, { name });
+        onSubmit={async (formData: FormData) => {
+          const name = formData.get("name")!.toString();
 
+          await dbData!.updateRecord(database.id, { name });
           setDatabaseList((prevList) => {
             const dbList = [...prevList];
             for (let i = 0; i < dbList.length; i++) {
@@ -66,8 +72,7 @@ const DatabaseItem = ({ database, setDatabaseList }) => {
         submitText="Confirm"
         submitStyle="border-red bg-red"
         onSubmit={async () => {
-          await dbData.removeRecord(database.id);
-
+          await dbData!.removeRecord(database.id);
           setDatabaseList((prevList) =>
             prevList.filter((db) => db.id !== database.id),
           );

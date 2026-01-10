@@ -2,7 +2,17 @@ import { PanelLeftOpen } from "lucide-react";
 
 import { ThemeSwitcher } from "@/components";
 
-const DatabaseHeader = ({ title, isSidebarOpen, openSidebar }) => {
+interface DatabaseHeaderProps {
+  title: string;
+  isSidebarOpen: boolean;
+  openSidebar: () => void;
+}
+
+const DatabaseHeader = ({
+  title,
+  isSidebarOpen,
+  openSidebar,
+}: DatabaseHeaderProps) => {
   return (
     <header className="relative flex h-16 items-center justify-center border-b border-base-3 bg-base-2">
       {!isSidebarOpen && (

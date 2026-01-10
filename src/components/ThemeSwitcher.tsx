@@ -1,16 +1,17 @@
-import { useState } from "react";
 import { Moon, Sun, SunMoon } from "lucide-react";
+import { useState } from "react";
 
-import { useTheme } from "@/hooks";
 import { Popup } from "@/components";
+import { useTheme } from "@/hooks";
 import { getComputedTheme } from "@/utils/helpers";
+import type { Theme } from "@/utils/types";
 
 const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  const switchTheme = (nextTheme) => {
+  const switchTheme = (nextTheme: Theme) => {
     setTheme(nextTheme);
     setIsPopupOpen(false);
 

@@ -1,6 +1,12 @@
+import type React from "react";
+
 import { useSQLEngine } from "@/hooks";
 
-const SQLEngineSuspense = ({ children }) => {
+interface SQLEngineSuspenseProps {
+  children: React.ReactElement;
+}
+
+const SQLEngineSuspense = ({ children }: SQLEngineSuspenseProps) => {
   const { engineLoading, engineInitError } = useSQLEngine();
 
   if (engineInitError) {

@@ -1,10 +1,20 @@
+import type React from "react";
+
+interface PopupProps {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactElement;
+  rightAligned?: boolean;
+  className?: string;
+}
+
 const Popup = ({
-  children,
   open,
   onClose,
+  children,
   rightAligned = false,
   className,
-}) => {
+}: PopupProps) => {
   return (
     <dialog
       open={open}

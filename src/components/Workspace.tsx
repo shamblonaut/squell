@@ -1,17 +1,16 @@
+import { ArrowBigDownDash, Play, Save } from "lucide-react";
 import { useCallback, useState } from "react";
-import { ArrowBigDownDash, Save, Play } from "lucide-react";
-
-import { SQLiteDBManager } from "@/lib/sqlite";
-
-import { useAppData, useModal, useSQLEngine } from "@/hooks";
+import type { QueryExecResult } from "sql.js";
 
 import {
-  Editor,
-  Panel,
   ActionButton,
-  TableView,
+  Editor,
   ModalForm,
+  Panel,
+  TableView,
 } from "@/components";
+import { useAppData, useModal, useSQLEngine } from "@/hooks";
+import { SQLiteDBManager } from "@/lib/sqlite";
 
 const SQL_CODE = `CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,9 +24,17 @@ INSERT INTO users (name, comment) VALUES
 
 SELECT * FROM users;`;
 
+interface WorkspaceConfig {
+  sandbox: boolean;
+}
+
+interface WorkspaceProps {
+  config?: WorkspaceConfig;
+}
+
 const defaultConfig = { sandbox: false };
 
-const Workspace = ({ config = defaultConfig }) => {
+const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
   const { openModal } = useModal();
   const { savedQueries, dbData } = useAppData();
   const { database, setDatabase } = useSQLEngine();
@@ -35,13 +42,14 @@ const Workspace = ({ config = defaultConfig }) => {
   const [initialDoc, setInitialDoc] = useState(config.sandbox ? SQL_CODE : "");
   const [code, setCode] = useState("");
 
-  const [tables, setTables] = useState(null);
-  const [execTime, setExecTime] = useState(null);
+  const [tables, setTables] = useState<QueryExecResult[] | null>(null);
+  const [execTime, setExecTime] = useState<number | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
+  // TODO: Rename record field `code` to `query`
   const saveQuery = useCallback(
-    async (code) => {
+    async (code: string) => {
       openModal(
         <ModalForm
           title="Save Query"
@@ -54,9 +62,9 @@ const Workspace = ({ config = defaultConfig }) => {
           ]}
           submitText="Save"
           submitStyle="border-emerald-500 bg-emerald-400"
-          onSubmit={(formData) => {
-            savedQueries.addRecord({
-              name: formData.get("name"),
+          onSubmit={(formData: FormData) => {
+            savedQueries!.addRecord({
+              name: formData.get("name")!.toString(),
               code,
               createdAt: new Date(),
               modifiedAt: new Date(),
@@ -69,7 +77,7 @@ const Workspace = ({ config = defaultConfig }) => {
   );
 
   const loadQuery = useCallback(async () => {
-    const queries = await savedQueries.getAllRecords();
+    const queries = await savedQueries!.getAllRecords();
     openModal(
       <ModalForm
         title="Load Query"
@@ -88,8 +96,10 @@ const Workspace = ({ config = defaultConfig }) => {
         submitText="Load"
         submitStyle="border-amber-500 bg-amber-400"
         submitHidden={queries.length === 0}
-        onSubmit={(formData) => {
-          const query = queries[formData.get("query-index")];
+        onSubmit={(formData: FormData) => {
+          const queryIndex = Number(formData.get("query-index")!);
+          const query = queries[queryIndex];
+
           setInitialDoc(query.code);
         }}
       />,
@@ -97,27 +107,35 @@ const Workspace = ({ config = defaultConfig }) => {
   }, [openModal, savedQueries]);
 
   const runQuery = useCallback(
-    async (query) => {
+    async (query: string) => {
       if (!dbData || processing) return;
+      if (!database) {
+        throw new Error("Database not found");
+      }
+
       setProcessing(true);
 
       const dbManager = config.sandbox
         ? new SQLiteDBManager()
         : database.manager;
 
+      if (!dbManager) {
+        throw new Error("DB Manager not found");
+      }
+
       dbManager
         .exec(query)
         .then(({ result, time }) => {
           setTables(result);
           setExecTime(Math.round(time));
-          setError("");
+          setError(null);
 
           if (config.sandbox) return;
 
           dbManager.getData().then((data) => {
             dbManager.getTables().then((tables) => {
               dbData.updateRecord(database.id, { data, tables });
-              setDatabase((prev) => ({ ...prev, tables }));
+              setDatabase((prev) => ({ ...prev!, tables }));
             });
           });
         })
@@ -137,7 +155,7 @@ const Workspace = ({ config = defaultConfig }) => {
     [config.sandbox, database, processing, dbData, setDatabase],
   );
 
-  const handleCodeChange = useCallback((updatedCode) => {
+  const handleCodeChange = useCallback((updatedCode: string) => {
     setCode(updatedCode);
   }, []);
 
@@ -181,10 +199,11 @@ const Workspace = ({ config = defaultConfig }) => {
       <Panel
         title="Result"
         barItems={
-          !processing &&
-          execTime !== null && (
-            <p className="italic">Query took {execTime} ms</p>
-          )
+          <>
+            {!processing && execTime !== null && (
+              <p className="italic">Query took {execTime} ms</p>
+            )}
+          </>
         }
       >
         {error ? (
