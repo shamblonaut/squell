@@ -47,7 +47,6 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  // TODO: Rename record field `code` to `query`
   const saveQuery = useCallback(
     async (code: string) => {
       openModal(

@@ -15,7 +15,6 @@ const Sidebar = ({ open, close }: SidebarProps) => {
 
   const { database } = useSQLEngine();
 
-  // TODO: There is a slight flicker on small screens when closing
   const handleTableLinkClick = () => {
     if (window.innerWidth < 1024) {
       close();
