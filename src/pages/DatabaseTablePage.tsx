@@ -23,8 +23,8 @@ const DatabaseTablePage = () => {
       setError(null);
       setTable(null);
 
-      database
-        .manager!.exec(`SELECT * FROM ${tableName}`)
+      database.manager
+        .exec(`SELECT * FROM ${tableName}`)
         .then(({ result }) => {
           setTable(result[0]);
         })

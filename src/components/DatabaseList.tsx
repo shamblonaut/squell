@@ -1,7 +1,6 @@
 import { Plus } from "lucide-react";
 
 import { DatabaseItem, ModalForm } from "@/components";
-import type { SQLEngineDatabase } from "@/contexts";
 import { useAppData, useDatabaseList, useModal } from "@/hooks";
 import { SQLiteDBManager } from "@/lib/sqlite";
 
@@ -29,15 +28,12 @@ const DatabaseList = () => {
           const name = formData.get("name")!.toString();
           const data = await manager.getData();
           const tables = await manager.getTables();
-          const id = await dbData!.addRecord({ name, data, tables });
+          const id = await dbData.addRecord({ name, data, tables });
 
-          const newDatabase: SQLEngineDatabase = {
-            id,
-            name,
-            tables,
-            manager: null,
-          };
-          setDatabaseList((prevList) => [...prevList, newDatabase]);
+          setDatabaseList((prevList) => [
+            ...prevList,
+            { id, name, data, tables },
+          ]);
         }}
       />,
     );

@@ -5,8 +5,7 @@ import { Link, Outlet, useParams } from "react-router";
 import { Sidebar } from "@/components";
 import { DatabaseHeader } from "@/components/headers";
 import type { SQLEngineDatabase } from "@/contexts";
-import { useAppData, useSQLEngine } from "@/hooks";
-import { SQLiteDBManager } from "@/lib/sqlite";
+import { useSQLEngine } from "@/hooks";
 
 export interface DatabaseLayoutContext {
   database: SQLEngineDatabase;
@@ -16,12 +15,15 @@ export interface DatabaseLayoutContext {
 const DatabaseLayout = () => {
   const { dbId } = useParams();
 
-  const { dbData } = useAppData();
-  const { database, setDatabase, engineLoading, engineInitError } =
-    useSQLEngine();
+  const {
+    database,
+    switchDatabase,
+    isLoading: isEngineLoading,
+    error: engineError,
+  } = useSQLEngine();
 
   const [pageTitle, setPageTitle] = useState("Database");
-  const [databaseError, setDatabaseError] = useState<string | null>(null);
+  const [databaseError, setDatabaseError] = useState<Error | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     () => window.innerWidth >= 1024,
   );
@@ -55,50 +57,28 @@ const DatabaseLayout = () => {
   }, []);
 
   useEffect(() => {
-    if (!dbData || engineLoading || engineInitError) {
-      return;
-    }
+    if (isEngineLoading || engineError) return;
 
-    let manager: SQLiteDBManager;
-    dbData.getRecord(Number(dbId)).then((record) => {
-      if (!record) {
-        setDatabaseError("Database not found");
-        return;
-      }
-
-      manager = new SQLiteDBManager(record.data);
-      manager.getTables().then((tables) => {
-        setDatabase({
-          id: Number(dbId),
-          name: record.name,
-          tables,
-          manager,
-        });
+    switchDatabase(Number(dbId))
+      .then(() => {
         setDatabaseError(null);
+      })
+      .catch((reason) => {
+        if (reason instanceof Error) {
+          setDatabaseError(reason);
+        } else {
+          throw reason;
+        }
       });
-    });
-
-    return () => {
-      if (manager) manager.close();
-      setDatabase(null);
-    };
-  }, [
-    dbId,
-    dbData,
-    engineLoading,
-    engineInitError,
-    setDatabase,
-    setDatabaseError,
-  ]);
+  }, [dbId, switchDatabase, isEngineLoading, engineError]);
 
   if (databaseError) {
     return (
       <main className="flex h-svh flex-col items-center justify-center px-4 text-center">
         <h2 className="m-4 text-4xl font-bold">Database Error</h2>
-        <div className="m-8 text-center text-red">
-          <p className="text-3xl font-bold">Error:</p>
-          <p className="text-2xl font-medium">{databaseError}</p>
-        </div>
+        <p className="m-8 text-center text-2xl font-medium text-red">
+          {databaseError.message}
+        </p>
         <Link
           className="my-8 flex items-center gap-2 rounded-sm bg-red px-8 py-2 text-lg font-bold text-white"
           to="/dashboard"

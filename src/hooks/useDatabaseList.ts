@@ -1,29 +1,20 @@
 import { useEffect, useState } from "react";
 
-import type { SQLEngineDatabase } from "@/contexts/SQLEngineContext";
 import { useAppData, useSQLEngine } from "@/hooks";
-import { AppData } from "@/lib/appData";
+import type { DBDataRecord } from "@/lib/appData/types";
 
 const useDatabaseList = () => {
   const { dbData } = useAppData();
-  const { engineLoading, engineInitError } = useSQLEngine();
+  const { isLoading: isEngineLoading, error: engineError } = useSQLEngine();
 
-  const [databaseList, setDatabaseList] = useState<SQLEngineDatabase[]>([]);
+  const [databaseList, setDatabaseList] = useState<DBDataRecord[]>([]);
 
   useEffect(() => {
     // Ensure DB is available and not closed
-    if (!dbData || !AppData.db || engineLoading || engineInitError) return;
+    if (isEngineLoading || engineError) return;
 
-    dbData
-      .getAllRecords()
-      .then((records) =>
-        setDatabaseList(
-          records.map(
-            (record) => ({ ...record, manager: null }) as SQLEngineDatabase,
-          ),
-        ),
-      );
-  }, [dbData, engineLoading, engineInitError]);
+    dbData.getAllRecords().then((records) => setDatabaseList(records));
+  }, [dbData, isEngineLoading, engineError]);
 
   return { databaseList, setDatabaseList };
 };

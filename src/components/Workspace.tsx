@@ -37,7 +37,7 @@ const defaultConfig = { sandbox: false };
 const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
   const { openModal } = useModal();
   const { savedQueries, dbData } = useAppData();
-  const { database, setDatabase } = useSQLEngine();
+  const { database, refreshDatabase } = useSQLEngine();
 
   const [initialDoc, setInitialDoc] = useState(config.sandbox ? SQL_CODE : "");
   const [code, setCode] = useState("");
@@ -45,7 +45,7 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
   const [tables, setTables] = useState<QueryExecResult[] | null>(null);
   const [execTime, setExecTime] = useState<number | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   // TODO: Rename record field `code` to `query`
   const saveQuery = useCallback(
@@ -63,7 +63,7 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
           submitText="Save"
           submitStyle="border-emerald-500 bg-emerald-400"
           onSubmit={(formData: FormData) => {
-            savedQueries!.addRecord({
+            savedQueries.addRecord({
               name: formData.get("name")!.toString(),
               code,
               createdAt: new Date(),
@@ -77,7 +77,7 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
   );
 
   const loadQuery = useCallback(async () => {
-    const queries = await savedQueries!.getAllRecords();
+    const queries = await savedQueries.getAllRecords();
     openModal(
       <ModalForm
         title="Load Query"
@@ -108,21 +108,16 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
 
   const runQuery = useCallback(
     async (query: string) => {
-      if (!dbData || processing) return;
+      if (processing) return;
       if (!database) {
         throw new Error("Database not found");
       }
-
-      setProcessing(true);
 
       const dbManager = config.sandbox
         ? new SQLiteDBManager()
         : database.manager;
 
-      if (!dbManager) {
-        throw new Error("DB Manager not found");
-      }
-
+      setProcessing(true);
       dbManager
         .exec(query)
         .then(({ result, time }) => {
@@ -135,14 +130,19 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
           dbManager.getData().then((data) => {
             dbManager.getTables().then((tables) => {
               dbData.updateRecord(database.id, { data, tables });
-              setDatabase((prev) => ({ ...prev!, tables }));
+              refreshDatabase();
             });
           });
         })
-        .catch((error) => {
+        .catch((error: unknown) => {
           setTables(null);
           setExecTime(null);
-          setError(error.message);
+
+          if (error instanceof Error) {
+            setError(error);
+          } else {
+            throw error;
+          }
         })
         .finally(() => {
           setProcessing(false);
@@ -152,7 +152,7 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
           }
         });
     },
-    [config.sandbox, database, processing, dbData, setDatabase],
+    [config.sandbox, database, processing, dbData, refreshDatabase],
   );
 
   const handleCodeChange = useCallback((updatedCode: string) => {
@@ -210,7 +210,7 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
           <div className="h-full min-w-min p-4 lg:p-8">
             <p className="ml-2 text-2xl font-bold text-red">SQL Error:</p>
             <div className="my-2 rounded-sm bg-base-3 p-4 font-[JetBrains_Mono]">
-              {error}
+              {error.message}
             </div>
           </div>
         ) : processing ? (

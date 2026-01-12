@@ -7,18 +7,18 @@ interface SQLEngineSuspenseProps {
 }
 
 const SQLEngineSuspense = ({ children }: SQLEngineSuspenseProps) => {
-  const { engineLoading, engineInitError } = useSQLEngine();
+  const { isLoading: isEngineLoading, error: engineError } = useSQLEngine();
 
-  if (engineInitError) {
+  if (engineError) {
     return (
       <div className="mb-32 flex flex-1 flex-col justify-center text-center">
         <em>Error while initializing SQL worker:</em>
         <p className="my-2 font-[JetBrains_Mono] font-bold text-red">
-          {engineInitError}
+          {engineError.message}
         </p>
       </div>
     );
-  } else if (engineLoading) {
+  } else if (isEngineLoading) {
     return (
       <div className="mb-32 flex flex-1 flex-col justify-center text-center">
         <em>Loading SQL Engine...</em>

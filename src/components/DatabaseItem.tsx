@@ -3,12 +3,12 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 import { ModalForm, Popup } from "@/components";
-import type { SQLEngineDatabase } from "@/contexts";
 import { useAppData, useModal } from "@/hooks";
+import type { DBDataRecord } from "@/lib/appData/types";
 
 interface DatabaseItemProps {
-  database: SQLEngineDatabase;
-  setDatabaseList: React.Dispatch<React.SetStateAction<SQLEngineDatabase[]>>;
+  database: DBDataRecord;
+  setDatabaseList: React.Dispatch<React.SetStateAction<DBDataRecord[]>>;
 }
 
 const DatabaseItem = ({ database, setDatabaseList }: DatabaseItemProps) => {
@@ -34,7 +34,7 @@ const DatabaseItem = ({ database, setDatabaseList }: DatabaseItemProps) => {
         onSubmit={async (formData: FormData) => {
           const name = formData.get("name")!.toString();
 
-          await dbData!.updateRecord(database.id, { name });
+          await dbData.updateRecord(database.id, { name });
           setDatabaseList((prevList) => {
             const dbList = [...prevList];
             for (let i = 0; i < dbList.length; i++) {
@@ -72,7 +72,7 @@ const DatabaseItem = ({ database, setDatabaseList }: DatabaseItemProps) => {
         submitText="Confirm"
         submitStyle="border-red bg-red"
         onSubmit={async () => {
-          await dbData!.removeRecord(database.id);
+          await dbData.removeRecord(database.id);
           setDatabaseList((prevList) =>
             prevList.filter((db) => db.id !== database.id),
           );
