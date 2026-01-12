@@ -18,8 +18,6 @@
 
     /* Linting */
     "strict": true,
-    "allowJs": true, // For JS -> TS migration; TODO: Remove
-    "checkJs": false, // For JS -> TS migration; TODO: Remove
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
