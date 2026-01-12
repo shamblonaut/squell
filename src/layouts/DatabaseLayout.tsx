@@ -28,31 +28,16 @@ const DatabaseLayout = () => {
     () => window.innerWidth >= 1024,
   );
 
-  // TODO: Handle keybinds in a better way
   useEffect(() => {
-    let altPressed = false;
-    const keyDownHandler = (event: KeyboardEvent) => {
-      if (event.key === "Alt") {
-        altPressed = true;
-      }
-
-      if (altPressed && event.key === "s") {
+    const keybindHandler = (event: KeyboardEvent) => {
+      if (event.altKey && event.key === "s") {
         setIsSidebarOpen((isOpen) => !isOpen);
       }
     };
 
-    const keyUpHandler = (event: KeyboardEvent) => {
-      if (event.key === "Alt") {
-        altPressed = false;
-      }
-    };
-
-    document.body.addEventListener("keydown", keyDownHandler);
-    document.body.addEventListener("keyup", keyUpHandler);
-
+    document.body.addEventListener("keydown", keybindHandler);
     return () => {
-      document.body.removeEventListener("keydown", keyDownHandler);
-      document.body.removeEventListener("keyup", keyUpHandler);
+      document.body.removeEventListener("keydown", keybindHandler);
     };
   }, []);
 
