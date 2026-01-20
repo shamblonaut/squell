@@ -108,13 +108,17 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
   const runQuery = useCallback(
     async (query: string) => {
       if (processing) return;
-      if (!database) {
-        throw new Error("Database not found");
-      }
 
-      const dbManager = config.sandbox
-        ? new SQLiteDBManager()
-        : database.manager;
+      let dbManager: SQLiteDBManager;
+      if (config.sandbox) {
+        dbManager = new SQLiteDBManager();
+      } else {
+        if (!database) {
+          throw new Error("Database not found");
+        }
+
+        dbManager = database.manager;
+      }
 
       setProcessing(true);
       dbManager
@@ -124,7 +128,7 @@ const Workspace = ({ config = defaultConfig }: WorkspaceProps) => {
           setExecTime(Math.round(time));
           setError(null);
 
-          if (config.sandbox) return;
+          if (!database) return;
 
           dbManager.getData().then((data) => {
             dbManager.getTables().then((tables) => {
